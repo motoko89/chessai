@@ -213,8 +213,8 @@ namespace ChessAI.Core
 				_ => throw new System.ArgumentException($"Unknown piece type: {pieceInfo.Type}")
 			};
 
-			// Set piece position on screen
-			piece.Position = BoardToScreen(pieceInfo.Position.X, pieceInfo.Position.Y);
+			// Set piece position on screen (centered in square)
+			piece.Position = BoardToScreen(pieceInfo.Position.X, pieceInfo.Position.Y, centerInSquare: true);
 			piece.HasMoved = pieceInfo.HasMoved;
 
 			// Connect piece signals
@@ -268,8 +268,9 @@ namespace ChessAI.Core
 		/// </summary>
 		/// <param name="rank">Board rank (0-7)</param>
 		/// <param name="file">Board file (0-7)</param>
+		/// <param name="centerInSquare">If true, returns center of square instead of top-left corner</param>
 		/// <returns>Screen position in pixels</returns>
-		public Vector2 BoardToScreen(int rank, int file)
+		public Vector2 BoardToScreen(int rank, int file, bool centerInSquare = false)
 		{
 			if (!IsValidPosition(rank, file))
 			{
@@ -281,6 +282,13 @@ namespace ChessAI.Core
 			// Note: We flip the rank because chess board rank 0 should appear at bottom
 			float x = BOARD_OFFSET_X + file * SQUARE_SIZE;
 			float y = BOARD_OFFSET_Y + (BOARD_SIZE - 1 - rank) * SQUARE_SIZE;
+			
+			// If centering is requested, add half square size to both coordinates
+			if (centerInSquare)
+			{
+				x += SQUARE_SIZE / 2;
+				y += SQUARE_SIZE / 2;
+			}
 			
 			return new Vector2(x, y);
 		}
@@ -588,8 +596,8 @@ namespace ChessAI.Core
 			var pieceNode = _pieceNodes[from.X, from.Y];
 			if (pieceNode != null)
 			{
-				// Update piece position
-				pieceNode.Position = BoardToScreen(to.X, to.Y);
+				// Update piece position (centered in square)
+				pieceNode.Position = BoardToScreen(to.X, to.Y, centerInSquare: true);
 				pieceNode.BoardPosition = to;
 				pieceNode.HasMoved = true;
 				
