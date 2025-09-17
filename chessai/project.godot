@@ -15,7 +15,7 @@ api_key=""
 [application]
 
 config/name="ChessAI"
-config/features=PackedStringArray("4.4", "C#", "Mobile")
+config/features=PackedStringArray("4.5", "C#", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
