@@ -4,7 +4,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>ChessAI</RootNamespace>
     <AssemblyName>ChessAI</AssemblyName>
-    <Nullable>enable</Nullable>
+    <Nullable>annotations</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
