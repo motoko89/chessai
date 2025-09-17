@@ -22,6 +22,11 @@ config/icon="res://icon.svg"
 
 AIService="*res://Scripts/AI/AIService.cs"
 
+[display]
+
+window/size/viewport_width=572
+window/size/viewport_height=572
+
 [dotnet]
 
 project/assembly_name="ChessAI"
