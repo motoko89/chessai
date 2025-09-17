@@ -57,7 +57,7 @@ namespace ChessAI.AI
 		/// <param name="enPassant">En passant target square</param>
 		/// <returns>AI's move in algebraic notation, or null if error</returns>
 		public async Task<string?> GetBestMoveAsync(
-            PieceInfo?[,] board, 
+			PieceInfo?[,] board, 
 			List<string> moveHistory,
 			CastleRights? castleRights = null,
 			string? enPassant = null)
