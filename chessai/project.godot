@@ -15,6 +15,7 @@ api_key=""
 [application]
 
 config/name="ChessAI"
+run/main_scene="res://Scenes/Main/Main.tscn"
 config/features=PackedStringArray("4.5", "C#", "Mobile")
 config/icon="res://icon.svg"
 

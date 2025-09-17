@@ -45,10 +45,10 @@ A Western Chess game built with Godot .NET/Mono and Anthropic AI backend for a 4
 - [x] Set up algebraic notation (a1-h8) coordinate mapping
 
 #### Task 1.3: Basic UI Framework
-- [ ] Create main game scene
-- [ ] Design board visual representation (8x8 grid)
-- [ ] Set up basic piece sprites/models
-- [ ] Implement board square highlighting system
+- [x] Create main game scene
+- [x] Design board visual representation (8x8 grid)
+- [x] Set up basic piece sprites/models
+- [x] Implement board square highlighting system
 
 ### Day 2: Game Logic & Piece Movement
 
