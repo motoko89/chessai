@@ -79,23 +79,20 @@ namespace ChessAI.Core
 		public delegate void GameStateChangedEventHandler(string currentPlayer, bool inCheck);
 		#endregion
 
+		public ChessBoard()
+		{
+			_board = BoardStateSerializer.CreateInitialBoard();
+			GD.Print("Chess board initialized with starting position");
+		}
+
 		#region Godot Lifecycle
 		public override void _Ready()
 		{
-			InitializeBoard();
 			CreateVisualBoard();
 		}
 		#endregion
 
 		#region Initialization
-		/// <summary>
-		/// Initializes the chess board data structure
-		/// </summary>
-		private void InitializeBoard()
-		{
-			_board = BoardStateSerializer.CreateInitialBoard();
-			GD.Print("Chess board initialized with starting position");
-		}
 
 		/// <summary>
 		/// Creates the visual representation of the chess board
@@ -131,11 +128,11 @@ namespace ChessAI.Core
 			
 			// Set square color (alternating pattern)
 			bool isLightSquare = (rank + file) % 2 == 0;
-			square.Color = isLightSquare ? Colors.BurlyWood : Colors.SaddleBrown;
+			square.Color = isLightSquare ? Colors.Burlywood : Colors.SaddleBrown;
 			
 			// Store reference and add to scene
 			_squares[rank, file] = square;
-			_squareContainer.AddChild(square);
+			_squareContainer?.AddChild(square);
 
 			// Add click detection
 			var area = new Area2D();
