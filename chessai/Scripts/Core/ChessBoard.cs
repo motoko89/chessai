@@ -426,15 +426,6 @@ namespace ChessAI.Core
 			}
 			return copy;
 		}
-
-		/// <summary>
-		/// Gets a copy of the current board state as strings (for backward compatibility)
-		/// </summary>
-		/// <returns>8x8 array copy of the board as strings</returns>
-		public string?[,] GetStringBoardCopy()
-		{
-			return BoardStateSerializer.ConvertToStringBoard(_board);
-		}
 		#endregion
 
 		#region Input Handling

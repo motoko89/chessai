@@ -131,7 +131,7 @@ namespace ChessAI.Pieces
         /// Checks if the king is currently in check
         /// Note: This is a placeholder - actual check detection should be done at board level
         /// </summary>
-        public bool IsInCheck(string?[,] board)
+        public bool IsInCheck(PieceInfo?[,] board)
         {
             // TODO: Implement check detection
             // This requires checking if any enemy piece can attack the king's current position

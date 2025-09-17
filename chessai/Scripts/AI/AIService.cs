@@ -1,5 +1,6 @@
-using Godot;
 using ChessAI.Core;
+using ChessAI.Pieces;
+using Godot;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -56,7 +57,7 @@ namespace ChessAI.AI
 		/// <param name="enPassant">En passant target square</param>
 		/// <returns>AI's move in algebraic notation, or null if error</returns>
 		public async Task<string?> GetBestMoveAsync(
-			string?[,] board, 
+            PieceInfo?[,] board, 
 			List<string> moveHistory,
 			CastleRights? castleRights = null,
 			string? enPassant = null)
@@ -106,7 +107,7 @@ namespace ChessAI.AI
 		/// <summary>
 		/// Gets a quick AI move without extensive context (for faster responses)
 		/// </summary>
-		public async Task<string?> GetQuickMoveAsync(string?[,] board, List<string> moveHistory)
+		public async Task<string?> GetQuickMoveAsync(PieceInfo?[,] board, List<string> moveHistory)
 		{
 			if (!_isInitialized || _anthropicClient == null)
 				return null;

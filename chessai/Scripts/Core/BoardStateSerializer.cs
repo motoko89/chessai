@@ -11,34 +11,6 @@ namespace ChessAI.Core
 	public static class BoardStateSerializer
 	{
 		/// <summary>
-		/// Converts a 2D board array to a human-readable string representation
-		/// </summary>
-		/// <param name="board">8x8 array representing the chess board</param>
-		/// <returns>String representation of the board with coordinates</returns>
-		public static string SerializeBoardToString(string?[,] board)
-		{
-			var sb = new StringBuilder();
-			sb.AppendLine("   a b c d e f g h");
-			sb.AppendLine();
-			
-			// Print ranks from 8 to 1 (chess convention)
-			for (int rank = 7; rank >= 0; rank--)
-			{
-				sb.Append($"{rank + 1}  ");
-				for (int file = 0; file < 8; file++)
-				{
-					var piece = board[rank, file];
-					sb.Append(string.IsNullOrEmpty(piece) ? ". " : $"{piece} ");
-				}
-				sb.AppendLine($" {rank + 1}");
-			}
-			
-			sb.AppendLine();
-			sb.AppendLine("   a b c d e f g h");
-			return sb.ToString();
-		}
-
-		/// <summary>
 		/// Converts a PieceInfo board to a human-readable string representation
 		/// </summary>
 		/// <param name="board">8x8 array representing the chess board</param>
@@ -144,39 +116,6 @@ namespace ChessAI.Core
 		{
 			var boardDict = SerializeBoardToJson(board, toMove, moveHistory, castleRights, enPassant);
 			return JsonConvert.SerializeObject(boardDict, Formatting.Indented);
-		}
-
-		/// <summary>
-		/// Creates an initial chess board setup
-		/// </summary>
-		/// <returns>8x8 board array with starting positions</returns>
-		public static string?[,] CreateInitialBoard()
-		{
-			var board = new string?[8, 8];
-			
-			// Set up initial piece positions
-			// Rank 1 (white pieces)
-			board[0, 0] = "R"; board[0, 1] = "N"; board[0, 2] = "B"; board[0, 3] = "Q";
-			board[0, 4] = "K"; board[0, 5] = "B"; board[0, 6] = "N"; board[0, 7] = "R";
-			
-			// Rank 2 (white pawns)
-			for (int file = 0; file < 8; file++)
-				board[1, file] = "P";
-			
-			// Empty ranks 3-6
-			for (int rank = 2; rank < 6; rank++)
-				for (int file = 0; file < 8; file++)
-					board[rank, file] = null;
-			
-			// Rank 7 (black pawns)
-			for (int file = 0; file < 8; file++)
-				board[6, file] = "p";
-			
-			// Rank 8 (black pieces)
-			board[7, 0] = "r"; board[7, 1] = "n"; board[7, 2] = "b"; board[7, 3] = "q";
-			board[7, 4] = "k"; board[7, 5] = "b"; board[7, 6] = "n"; board[7, 7] = "r";
-			
-			return board;
 		}
 
 		/// <summary>

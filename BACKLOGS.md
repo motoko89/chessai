@@ -107,6 +107,7 @@ A Western Chess game built with Godot .NET/Mono and Anthropic AI backend for a 4
 - [ ] Performance optimization
 - [ ] Bug fixes and polish
 - [ ] User experience improvements
+- [ ] Implement King's IsInCheck
 
 ## Technical Architecture
 
