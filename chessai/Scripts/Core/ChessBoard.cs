@@ -1,5 +1,6 @@
 using Godot;
 using ChessAI.Core;
+using ChessAI.Pieces;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,16 +20,20 @@ namespace ChessAI.Core
 		#endregion
 
 		#region Private Fields
-		private string?[,] _board;
-		private string _currentPlayer = "white";
+		private PieceInfo?[,] _board = new PieceInfo?[BOARD_SIZE, BOARD_SIZE];
+		private string?[,] _stringBoard = new string?[BOARD_SIZE, BOARD_SIZE]; // For compatibility with existing API
+		private PieceColor _currentPlayer = PieceColor.White;
 		private List<string> _moveHistory = new();
 		private CastleRights _castleRights = CastleRights.Initial;
 		private string? _enPassantTarget = null;
 		
 		// Visual components
 		private ColorRect[,] _squares = new ColorRect[BOARD_SIZE, BOARD_SIZE];
+		private ChessPiece?[,] _pieceNodes = new ChessPiece?[BOARD_SIZE, BOARD_SIZE];
 		private Node2D? _squareContainer;
+		private Node2D? _pieceContainer;
 		private Vector2I? _selectedSquare = null;
+		private ChessPiece? _selectedPiece = null;
 		private List<Vector2I> _highlightedSquares = new();
 		#endregion
 
@@ -36,7 +41,12 @@ namespace ChessAI.Core
 		/// <summary>
 		/// Gets the current player whose turn it is
 		/// </summary>
-		public string CurrentPlayer => _currentPlayer;
+		public PieceColor CurrentPlayer => _currentPlayer;
+		
+		/// <summary>
+		/// Gets the current player as a string (for backward compatibility)
+		/// </summary>
+		public string CurrentPlayerString => _currentPlayer == PieceColor.White ? "white" : "black";
 		
 		/// <summary>
 		/// Gets a copy of the move history
@@ -57,6 +67,11 @@ namespace ChessAI.Core
 		/// Gets the currently selected square
 		/// </summary>
 		public Vector2I? SelectedSquare => _selectedSquare;
+		
+		/// <summary>
+		/// Gets the currently selected piece
+		/// </summary>
+		public ChessPiece? SelectedPiece => _selectedPiece;
 		#endregion
 
 		#region Signals
@@ -81,7 +96,7 @@ namespace ChessAI.Core
 
 		public ChessBoard()
 		{
-			_board = BoardStateSerializer.CreateInitialBoard();
+			InitializeBoard();
 			GD.Print("Chess board initialized with starting position");
 		}
 
@@ -89,6 +104,7 @@ namespace ChessAI.Core
 		public override void _Ready()
 		{
 			CreateVisualBoard();
+			CreatePieceNodes();
 		}
 		#endregion
 
@@ -149,6 +165,128 @@ namespace ChessAI.Core
 			area.InputEvent += (Node viewport, InputEvent @event, long shapeIdx) => {
 				OnSquareClicked(@event, new Vector2I(rank, file));
 			};
+		}
+
+		/// <summary>
+		/// Initializes the chess board with starting position
+		/// </summary>
+		private void InitializeBoard()
+		{
+			// Clear the board
+			_board = new PieceInfo?[BOARD_SIZE, BOARD_SIZE];
+			
+			// Set up white pieces (bottom of board, rank 0 and 1)
+			SetupPiecesForColor(PieceColor.White, 0, 1);
+			
+			// Set up black pieces (top of board, rank 6 and 7) 
+			SetupPiecesForColor(PieceColor.Black, 7, 6);
+			
+			// Update string board for compatibility
+			UpdateStringBoard();
+			
+			_currentPlayer = PieceColor.White;
+		}
+
+		/// <summary>
+		/// Sets up pieces for a specific color
+		/// </summary>
+		private void SetupPiecesForColor(PieceColor color, int backRank, int pawnRank)
+		{
+			// Back row pieces (rank 0 for white, rank 7 for black)
+			_board[backRank, 0] = new PieceInfo(PieceType.Rook, color, new Vector2I(backRank, 0));
+			_board[backRank, 1] = new PieceInfo(PieceType.Knight, color, new Vector2I(backRank, 1));
+			_board[backRank, 2] = new PieceInfo(PieceType.Bishop, color, new Vector2I(backRank, 2));
+			_board[backRank, 3] = new PieceInfo(PieceType.Queen, color, new Vector2I(backRank, 3));
+			_board[backRank, 4] = new PieceInfo(PieceType.King, color, new Vector2I(backRank, 4));
+			_board[backRank, 5] = new PieceInfo(PieceType.Bishop, color, new Vector2I(backRank, 5));
+			_board[backRank, 6] = new PieceInfo(PieceType.Knight, color, new Vector2I(backRank, 6));
+			_board[backRank, 7] = new PieceInfo(PieceType.Rook, color, new Vector2I(backRank, 7));
+
+			// Pawns (rank 1 for white, rank 6 for black)
+			for (int file = 0; file < BOARD_SIZE; file++)
+			{
+				_board[pawnRank, file] = new PieceInfo(PieceType.Pawn, color, new Vector2I(pawnRank, file));
+			}
+		}
+
+		/// <summary>
+		/// Updates the string board representation from PieceInfo board
+		/// </summary>
+		private void UpdateStringBoard()
+		{
+			_stringBoard = new string?[BOARD_SIZE, BOARD_SIZE];
+			for (int rank = 0; rank < BOARD_SIZE; rank++)
+			{
+				for (int file = 0; file < BOARD_SIZE; file++)
+				{
+					var piece = _board[rank, file];
+					_stringBoard[rank, file] = piece?.ToNotation();
+				}
+			}
+		}
+
+		/// <summary>
+		/// Creates a visual ChessPiece node from PieceInfo
+		/// </summary>
+		private ChessPiece CreatePieceNode(PieceInfo pieceInfo)
+		{
+			ChessPiece piece = pieceInfo.Type switch
+			{
+				PieceType.Pawn => new Pawn(pieceInfo.Color, pieceInfo.Position),
+				PieceType.Rook => new Rook(pieceInfo.Color, pieceInfo.Position),
+				PieceType.Knight => new Knight(pieceInfo.Color, pieceInfo.Position),
+				PieceType.Bishop => new Bishop(pieceInfo.Color, pieceInfo.Position),
+				PieceType.Queen => new Queen(pieceInfo.Color, pieceInfo.Position),
+				PieceType.King => new King(pieceInfo.Color, pieceInfo.Position),
+				_ => throw new System.ArgumentException($"Unknown piece type: {pieceInfo.Type}")
+			};
+
+			// Set piece position on screen
+			piece.Position = BoardToScreen(pieceInfo.Position.X, pieceInfo.Position.Y);
+			piece.HasMoved = pieceInfo.HasMoved;
+
+			// Connect piece signals
+			piece.PieceClicked += OnPieceClicked;
+
+			return piece;
+		}
+
+		/// <summary>
+		/// Creates and displays all piece nodes on the board
+		/// </summary>
+		private void CreatePieceNodes()
+		{
+			// Create container for pieces
+			if (_pieceContainer == null)
+			{
+				_pieceContainer = new Node2D();
+				_pieceContainer.Name = "PieceContainer";
+				AddChild(_pieceContainer);
+			}
+
+			// Clear existing pieces
+			foreach (Node child in _pieceContainer.GetChildren())
+			{
+				child.QueueFree();
+			}
+
+			// Reset piece node array
+			_pieceNodes = new ChessPiece?[BOARD_SIZE, BOARD_SIZE];
+
+			// Create nodes for all pieces on board
+			for (int rank = 0; rank < BOARD_SIZE; rank++)
+			{
+				for (int file = 0; file < BOARD_SIZE; file++)
+				{
+					var pieceInfo = _board[rank, file];
+					if (pieceInfo.HasValue)
+					{
+						var pieceNode = CreatePieceNode(pieceInfo.Value);
+						_pieceNodes[rank, file] = pieceNode;
+						_pieceContainer.AddChild(pieceNode);
+					}
+				}
+			}
 		}
 		#endregion
 
@@ -240,8 +378,8 @@ namespace ChessAI.Core
 		/// </summary>
 		/// <param name="rank">Board rank (0-7)</param>
 		/// <param name="file">Board file (0-7)</param>
-		/// <returns>Piece string or null if empty</returns>
-		public string? GetPieceAt(int rank, int file)
+		/// <returns>PieceInfo or null if empty</returns>
+		public PieceInfo? GetPieceAt(int rank, int file)
 		{
 			if (!IsValidPosition(rank, file)) 
 				return null;
@@ -253,10 +391,22 @@ namespace ChessAI.Core
 		/// Gets the piece at the specified position using Vector2I
 		/// </summary>
 		/// <param name="position">Board position</param>
-		/// <returns>Piece string or null if empty</returns>
-		public string? GetPieceAt(Vector2I position)
+		/// <returns>PieceInfo or null if empty</returns>
+		public PieceInfo? GetPieceAt(Vector2I position)
 		{
 			return GetPieceAt(position.X, position.Y);
+		}
+
+		/// <summary>
+		/// Gets the piece string at the specified position (for backward compatibility)
+		/// </summary>
+		/// <param name="rank">Board rank (0-7)</param>
+		/// <param name="file">Board file (0-7)</param>
+		/// <returns>Piece string or null if empty</returns>
+		public string? GetPieceStringAt(int rank, int file)
+		{
+			var piece = GetPieceAt(rank, file);
+			return piece?.ToNotation();
 		}
 
 		/// <summary>
@@ -264,8 +414,8 @@ namespace ChessAI.Core
 		/// </summary>
 		/// <param name="rank">Board rank (0-7)</param>
 		/// <param name="file">Board file (0-7)</param>
-		/// <param name="piece">Piece string or null for empty</param>
-		public void SetPieceAt(int rank, int file, string? piece)
+		/// <param name="piece">PieceInfo or null for empty</param>
+		public void SetPieceAt(int rank, int file, PieceInfo? piece)
 		{
 			if (!IsValidPosition(rank, file))
 			{
@@ -274,20 +424,51 @@ namespace ChessAI.Core
 			}
 
 			_board[rank, file] = piece;
+			UpdateStringBoard();
 		}
 
 		/// <summary>
-		/// Gets a copy of the current board state
+		/// Sets a piece using string notation (for backward compatibility)
+		/// </summary>
+		/// <param name="rank">Board rank (0-7)</param>
+		/// <param name="file">Board file (0-7)</param>
+		/// <param name="pieceString">Piece string or null for empty</param>
+		public void SetPieceStringAt(int rank, int file, string? pieceString)
+		{
+			var piece = string.IsNullOrEmpty(pieceString) ? null : PieceInfo.FromNotation(pieceString, new Vector2I(rank, file));
+			SetPieceAt(rank, file, piece);
+		}
+
+		/// <summary>
+		/// Gets a copy of the current board state as PieceInfo
 		/// </summary>
 		/// <returns>8x8 array copy of the board</returns>
-		public string?[,] GetBoardCopy()
+		public PieceInfo?[,] GetBoardCopy()
 		{
-			var copy = new string?[BOARD_SIZE, BOARD_SIZE];
+			var copy = new PieceInfo?[BOARD_SIZE, BOARD_SIZE];
 			for (int rank = 0; rank < BOARD_SIZE; rank++)
 			{
 				for (int file = 0; file < BOARD_SIZE; file++)
 				{
 					copy[rank, file] = _board[rank, file];
+				}
+			}
+			return copy;
+		}
+
+		/// <summary>
+		/// Gets a copy of the current board state as strings (for backward compatibility)
+		/// </summary>
+		/// <returns>8x8 array copy of the board as strings</returns>
+		public string?[,] GetStringBoardCopy()
+		{
+			UpdateStringBoard();
+			var copy = new string?[BOARD_SIZE, BOARD_SIZE];
+			for (int rank = 0; rank < BOARD_SIZE; rank++)
+			{
+				for (int file = 0; file < BOARD_SIZE; file++)
+				{
+					copy[rank, file] = _stringBoard[rank, file];
 				}
 			}
 			return copy;
@@ -333,6 +514,11 @@ namespace ChessAI.Core
 		/// </summary>
 		public void ClearSelection()
 		{
+			if (_selectedPiece != null)
+			{
+				_selectedPiece.SetSelected(false);
+				_selectedPiece = null;
+			}
 			_selectedSquare = null;
 			ClearHighlights();
 		}
@@ -400,30 +586,38 @@ namespace ChessAI.Core
 				var toPos = AlgebraicToBoard(to);
 				
 				var piece = GetPieceAt(fromPos);
-				if (string.IsNullOrEmpty(piece))
+				if (!piece.HasValue)
 				{
 					GD.PrintErr($"No piece at source position: {from}");
 					return false;
 				}
 
+				// Update piece position
+				var updatedPiece = piece.Value;
+				updatedPiece.Position = toPos;
+				updatedPiece.HasMoved = true;
+
 				// Execute the move
 				SetPieceAt(fromPos.X, fromPos.Y, null);
-				SetPieceAt(toPos.X, toPos.Y, piece);
+				SetPieceAt(toPos.X, toPos.Y, updatedPiece);
+				
+				// Update visual pieces
+				MovePieceNode(fromPos, toPos);
 				
 				// Add to move history
 				_moveHistory.Add($"{from}{to}");
 				
 				// Switch turns
-				_currentPlayer = _currentPlayer == "white" ? "black" : "white";
+				_currentPlayer = _currentPlayer == PieceColor.White ? PieceColor.Black : PieceColor.White;
 				
 				// Clear selection and highlights
 				ClearSelection();
 				
 				// Emit signals
-				EmitSignal(SignalName.MoveExecuted, from, to, piece);
-				EmitSignal(SignalName.GameStateChanged, _currentPlayer, false); // TODO: Check detection
+				EmitSignal(SignalName.MoveExecuted, from, to, piece.Value.ToNotation());
+				EmitSignal(SignalName.GameStateChanged, CurrentPlayerString, false); // TODO: Check detection
 				
-				GD.Print($"Move executed: {from} -> {to} ({piece})");
+				GD.Print($"Move executed: {from} -> {to} ({piece.Value.ToNotation()})");
 				return true;
 			}
 			catch (System.Exception ex)
@@ -434,20 +628,110 @@ namespace ChessAI.Core
 		}
 
 		/// <summary>
+		/// Moves a piece node visually from one square to another
+		/// </summary>
+		private void MovePieceNode(Vector2I from, Vector2I to)
+		{
+			var pieceNode = _pieceNodes[from.X, from.Y];
+			if (pieceNode != null)
+			{
+				// Update piece position
+				pieceNode.Position = BoardToScreen(to.X, to.Y);
+				pieceNode.BoardPosition = to;
+				pieceNode.HasMoved = true;
+				
+				// Move in the array
+				_pieceNodes[to.X, to.Y] = pieceNode;
+				_pieceNodes[from.X, from.Y] = null;
+			}
+		}
+
+		/// <summary>
+		/// Handles piece click events
+		/// </summary>
+		private void OnPieceClicked(ChessPiece piece)
+		{
+			GD.Print($"Piece clicked: {piece}");
+			
+			// If no piece is selected, select this piece
+			if (_selectedPiece == null)
+			{
+				SelectPiece(piece);
+			}
+			// If clicking the same piece, deselect
+			else if (_selectedPiece == piece)
+			{
+				ClearSelection();
+			}
+			// If clicking a different piece, try to move or select new piece
+			else
+			{
+				if (TryExecuteMove(_selectedPiece.BoardPosition, piece.BoardPosition))
+				{
+					ClearSelection();
+				}
+				else
+				{
+					// If move failed, select the new piece instead
+					ClearSelection();
+					SelectPiece(piece);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Selects a piece and shows its valid moves
+		/// </summary>
+		private void SelectPiece(ChessPiece piece)
+		{
+			// Only allow selecting pieces of the current player
+			if (piece.Color != _currentPlayer)
+			{
+				return;
+			}
+
+			_selectedPiece = piece;
+			_selectedSquare = piece.BoardPosition;
+			
+			// Highlight the selected piece
+			piece.SetSelected(true);
+			HighlightSquare(piece.BoardPosition, Colors.Yellow);
+			
+			// Show valid moves
+			var validMoves = piece.GetValidMoves(GetStringBoardCopy());
+			HighlightSquares(validMoves, Colors.LightGreen);
+			
+			EmitSignal(SignalName.SquareClicked, piece.BoardPosition);
+		}
+
+		/// <summary>
+		/// Tries to execute a move between two positions
+		/// </summary>
+		private bool TryExecuteMove(Vector2I from, Vector2I to)
+		{
+			var fromAlgebraic = BoardToAlgebraic(from.X, from.Y);
+			var toAlgebraic = BoardToAlgebraic(to.X, to.Y);
+			
+			// TODO: Add move validation here
+			// For now, just execute any move
+			return ExecuteMove(fromAlgebraic, toAlgebraic);
+		}
+
+		/// <summary>
 		/// Resets the board to the initial state
 		/// </summary>
 		public void ResetBoard()
 		{
-			_board = BoardStateSerializer.CreateInitialBoard();
-			_currentPlayer = "white";
+			InitializeBoard();
 			_moveHistory.Clear();
 			_castleRights = CastleRights.Initial;
 			_enPassantTarget = null;
 			
 			ClearSelection();
+			CreatePieceNodes(); // Recreate visual pieces
 			
 			GD.Print("Chess board reset to initial position");
-			EmitSignal(SignalName.GameStateChanged, _currentPlayer, false);
+			EmitSignal(SignalName.GameStateChanged, CurrentPlayerString, false);
 		}
 
 		/// <summary>
@@ -456,9 +740,10 @@ namespace ChessAI.Core
 		/// <returns>Board state dictionary</returns>
 		public Dictionary<string, object> GetBoardStateForAI()
 		{
+			UpdateStringBoard();
 			return BoardStateSerializer.SerializeBoardToJson(
-				_board, 
-				_currentPlayer, 
+				_stringBoard, 
+				CurrentPlayerString, 
 				_moveHistory, 
 				_castleRights, 
 				_enPassantTarget
@@ -471,9 +756,10 @@ namespace ChessAI.Core
 		/// <returns>Board state as JSON</returns>
 		public string GetBoardStateAsJson()
 		{
+			UpdateStringBoard();
 			return BoardStateSerializer.SerializeBoardToJsonString(
-				_board, 
-				_currentPlayer, 
+				_stringBoard, 
+				CurrentPlayerString, 
 				_moveHistory, 
 				_castleRights, 
 				_enPassantTarget
@@ -485,10 +771,11 @@ namespace ChessAI.Core
 		/// </summary>
 		public void PrintBoardState()
 		{
-			var boardString = BoardStateSerializer.SerializeBoardToString(_board);
+			UpdateStringBoard();
+			var boardString = BoardStateSerializer.SerializeBoardToString(_stringBoard);
 			GD.Print("Current board state:");
 			GD.Print(boardString);
-			GD.Print($"To move: {_currentPlayer}");
+			GD.Print($"To move: {CurrentPlayerString}");
 			GD.Print($"Move history: [{string.Join(", ", _moveHistory)}]");
 		}
 		#endregion

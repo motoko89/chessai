@@ -39,8 +39,8 @@ A Western Chess game built with Godot .NET/Mono and Anthropic AI backend for a 4
 
 #### Task 1.2: Board & Pieces Foundation
 - [x] Create ChessBoard scene and script
-- [ ] Design piece representation system
-- [ ] Create base ChessPiece class
+- [x] Design piece representation system
+- [x] Create base ChessPiece class
 - [x] Implement 8x8 board coordinate system
 - [x] Set up algebraic notation (a1-h8) coordinate mapping
 

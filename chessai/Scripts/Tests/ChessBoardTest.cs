@@ -1,5 +1,6 @@
 using Godot;
 using ChessAI.Core;
+using ChessAI.Pieces;
 
 namespace ChessAI.Tests
 {
@@ -89,7 +90,8 @@ namespace ChessAI.Tests
 		{
 			var algebraic = _chessBoard.BoardToAlgebraic(position.X, position.Y);
 			var piece = _chessBoard.GetPieceAt(position);
-			GD.Print($"Square clicked: {algebraic} - Piece: {piece ?? "empty"}");
+			var pieceString = piece?.ToNotation() ?? "empty";
+			GD.Print($"Square clicked: {algebraic} - Piece: {pieceString}");
 		}
 
 		public override void _Input(InputEvent @event)
