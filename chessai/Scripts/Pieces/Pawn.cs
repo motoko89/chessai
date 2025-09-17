@@ -12,7 +12,7 @@ namespace ChessAI.Pieces
         {
         }
 
-        public override List<Vector2I> GetValidMoves(string?[,] board)
+        public override List<Vector2I> GetValidMoves(PieceInfo?[,] board)
         {
             var moves = new List<Vector2I>();
             int direction = Color == PieceColor.White ? 1 : -1; // White moves up (increasing rank), Black moves down

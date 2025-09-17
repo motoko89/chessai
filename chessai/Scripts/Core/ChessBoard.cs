@@ -18,7 +18,6 @@ namespace ChessAI.Core
 
 		#region Private Fields
 		private PieceInfo?[,] _board = new PieceInfo?[BOARD_SIZE, BOARD_SIZE];
-		private string?[,] _stringBoard = new string?[BOARD_SIZE, BOARD_SIZE]; // For compatibility with existing API
 		private PieceColor _currentPlayer = PieceColor.White;
 		private List<string> _moveHistory = new();
 		private CastleRights _castleRights = CastleRights.Initial;
@@ -173,9 +172,6 @@ namespace ChessAI.Core
 			// Set up black pieces (top of board, rank 6 and 7) 
 			SetupPiecesForColor(PieceColor.Black, 7, 6);
 			
-			// Update string board for compatibility
-			UpdateStringBoard();
-			
 			_currentPlayer = PieceColor.White;
 		}
 
@@ -198,22 +194,6 @@ namespace ChessAI.Core
 			for (int file = 0; file < BOARD_SIZE; file++)
 			{
 				_board[pawnRank, file] = new PieceInfo(PieceType.Pawn, color, new Vector2I(pawnRank, file));
-			}
-		}
-
-		/// <summary>
-		/// Updates the string board representation from PieceInfo board
-		/// </summary>
-		private void UpdateStringBoard()
-		{
-			_stringBoard = new string?[BOARD_SIZE, BOARD_SIZE];
-			for (int rank = 0; rank < BOARD_SIZE; rank++)
-			{
-				for (int file = 0; file < BOARD_SIZE; file++)
-				{
-					var piece = _board[rank, file];
-					_stringBoard[rank, file] = piece?.ToNotation();
-				}
 			}
 		}
 
@@ -416,7 +396,6 @@ namespace ChessAI.Core
 			}
 
 			_board[rank, file] = piece;
-			UpdateStringBoard();
 		}
 
 		/// <summary>
@@ -454,16 +433,7 @@ namespace ChessAI.Core
 		/// <returns>8x8 array copy of the board as strings</returns>
 		public string?[,] GetStringBoardCopy()
 		{
-			UpdateStringBoard();
-			var copy = new string?[BOARD_SIZE, BOARD_SIZE];
-			for (int rank = 0; rank < BOARD_SIZE; rank++)
-			{
-				for (int file = 0; file < BOARD_SIZE; file++)
-				{
-					copy[rank, file] = _stringBoard[rank, file];
-				}
-			}
-			return copy;
+			return BoardStateSerializer.ConvertToStringBoard(_board);
 		}
 		#endregion
 
@@ -690,7 +660,7 @@ namespace ChessAI.Core
 			HighlightSquare(piece.BoardPosition, Colors.Yellow);
 			
 			// Show valid moves
-			var validMoves = piece.GetValidMoves(GetStringBoardCopy());
+			var validMoves = piece.GetValidMoves(_board);
 			HighlightSquares(validMoves, Colors.LightGreen);
 			
 			EmitSignal(SignalName.SquareClicked, piece.BoardPosition);
@@ -732,9 +702,9 @@ namespace ChessAI.Core
 		/// <returns>Board state dictionary</returns>
 		public Dictionary<string, object> GetBoardStateForAI()
 		{
-			UpdateStringBoard();
+			var stringBoard = BoardStateSerializer.ConvertToStringBoard(_board);
 			return BoardStateSerializer.SerializeBoardToJson(
-				_stringBoard, 
+				stringBoard, 
 				CurrentPlayer.ToString(), 
 				_moveHistory, 
 				_castleRights, 
@@ -748,9 +718,9 @@ namespace ChessAI.Core
 		/// <returns>Board state as JSON</returns>
 		public string GetBoardStateAsJson()
 		{
-			UpdateStringBoard();
+			var stringBoard = BoardStateSerializer.ConvertToStringBoard(_board);
 			return BoardStateSerializer.SerializeBoardToJsonString(
-				_stringBoard, 
+				stringBoard, 
 				CurrentPlayer.ToString(), 
 				_moveHistory, 
 				_castleRights, 
@@ -763,8 +733,7 @@ namespace ChessAI.Core
 		/// </summary>
 		public void PrintBoardState()
 		{
-			UpdateStringBoard();
-			var boardString = BoardStateSerializer.SerializeBoardToString(_stringBoard);
+			var boardString = BoardStateSerializer.SerializeBoardToString(_board);
 			GD.Print("Current board state:");
 			GD.Print(boardString);
 			GD.Print($"To move: {CurrentPlayer}");

@@ -47,7 +47,7 @@ namespace ChessAI.Pieces
         /// <summary>
         /// Returns all valid moves for this piece given the current board state
         /// </summary>
-        public abstract List<Vector2I> GetValidMoves(string?[,] board);
+        public abstract List<Vector2I> GetValidMoves(PieceInfo?[,] board);
 
         /// <summary>
         /// Returns the sprite resource path for this piece
@@ -148,32 +148,29 @@ namespace ChessAI.Pieces
         /// <summary>
         /// Checks if a square is empty
         /// </summary>
-        protected bool IsSquareEmpty(string?[,] board, Vector2I position)
+        protected bool IsSquareEmpty(PieceInfo?[,] board, Vector2I position)
         {
-            return IsValidPosition(position) && string.IsNullOrEmpty(board[position.X, position.Y]);
+            return IsValidPosition(position) && !board[position.X, position.Y].HasValue;
         }
 
         /// <summary>
         /// Checks if a square contains an enemy piece
         /// </summary>
-        protected bool IsEnemyPiece(string?[,] board, Vector2I position)
+        protected bool IsEnemyPiece(PieceInfo?[,] board, Vector2I position)
         {
             if (!IsValidPosition(position)) return false;
             
             var piece = board[position.X, position.Y];
-            if (string.IsNullOrEmpty(piece)) return false;
+            if (!piece.HasValue) return false;
 
             // Check if piece color is different from this piece's color
-            bool isWhitePiece = char.IsUpper(piece[0]);
-            bool thisIsWhite = Color == PieceColor.White;
-            
-            return isWhitePiece != thisIsWhite;
+            return piece.Value.Color != Color;
         }
 
         /// <summary>
         /// Checks if a square is empty or contains an enemy piece (valid move target)
         /// </summary>
-        protected bool CanMoveTo(string?[,] board, Vector2I position)
+        protected bool CanMoveTo(PieceInfo?[,] board, Vector2I position)
         {
             return IsSquareEmpty(board, position) || IsEnemyPiece(board, position);
         }
@@ -181,7 +178,7 @@ namespace ChessAI.Pieces
         /// <summary>
         /// Gets all moves in a direction until blocked (for sliding pieces)
         /// </summary>
-        protected List<Vector2I> GetMovesInDirection(string?[,] board, Vector2I direction)
+        protected List<Vector2I> GetMovesInDirection(PieceInfo?[,] board, Vector2I direction)
         {
             var moves = new List<Vector2I>();
             var currentPos = BoardPosition + direction;

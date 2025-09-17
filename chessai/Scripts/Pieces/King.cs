@@ -12,7 +12,7 @@ namespace ChessAI.Pieces
         {
         }
 
-        public override List<Vector2I> GetValidMoves(string?[,] board)
+        public override List<Vector2I> GetValidMoves(PieceInfo?[,] board)
         {
             var moves = new List<Vector2I>();
 
@@ -73,7 +73,7 @@ namespace ChessAI.Pieces
         /// Gets potential castling moves (kingside and queenside)
         /// Note: This doesn't check for check conditions - that should be done at board level
         /// </summary>
-        public List<Vector2I> GetCastlingMoves(string?[,] board)
+        public List<Vector2I> GetCastlingMoves(PieceInfo?[,] board)
         {
             var castlingMoves = new List<Vector2I>();
 
@@ -101,14 +101,16 @@ namespace ChessAI.Pieces
         /// <summary>
         /// Helper method to check if castling is possible in a given direction
         /// </summary>
-        private bool CanCastleInDirection(string?[,] board, Vector2I rookPosition, bool isKingside)
+        private bool CanCastleInDirection(PieceInfo?[,] board, Vector2I rookPosition, bool isKingside)
         {
             // Check if rook exists and hasn't moved
             var rookPiece = board[rookPosition.X, rookPosition.Y];
-            if (string.IsNullOrEmpty(rookPiece)) return false;
+            if (!rookPiece.HasValue) return false;
 
-            var expectedRook = Color == PieceColor.White ? "R" : "r";
-            if (rookPiece != expectedRook) return false;
+            // Verify it's the correct rook and hasn't moved
+            if (rookPiece.Value.Type != PieceType.Rook || 
+                rookPiece.Value.Color != Color || 
+                rookPiece.Value.HasMoved) return false;
 
             // Check if squares between king and rook are empty
             int startFile = isKingside ? 5 : 1; // f-file or b-file

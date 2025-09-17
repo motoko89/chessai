@@ -12,7 +12,7 @@ namespace ChessAI.Pieces
         {
         }
 
-        public override List<Vector2I> GetValidMoves(string?[,] board)
+        public override List<Vector2I> GetValidMoves(PieceInfo?[,] board)
         {
             var moves = new List<Vector2I>();
 
@@ -43,7 +43,7 @@ namespace ChessAI.Pieces
         /// <summary>
         /// Gets the queen's horizontal and vertical moves (rook-like)
         /// </summary>
-        public List<Vector2I> GetRookLikeMoves(string?[,] board)
+        public List<Vector2I> GetRookLikeMoves(PieceInfo?[,] board)
         {
             var moves = new List<Vector2I>();
             var rookDirections = new Vector2I[]
@@ -65,7 +65,7 @@ namespace ChessAI.Pieces
         /// <summary>
         /// Gets the queen's diagonal moves (bishop-like)
         /// </summary>
-        public List<Vector2I> GetBishopLikeMoves(string?[,] board)
+        public List<Vector2I> GetBishopLikeMoves(PieceInfo?[,] board)
         {
             var moves = new List<Vector2I>();
             var bishopDirections = new Vector2I[]

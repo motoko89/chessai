@@ -1,6 +1,7 @@
 using System.Text;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using ChessAI.Pieces;
 
 namespace ChessAI.Core
 {
@@ -35,6 +36,52 @@ namespace ChessAI.Core
 			sb.AppendLine();
 			sb.AppendLine("   a b c d e f g h");
 			return sb.ToString();
+		}
+
+		/// <summary>
+		/// Converts a PieceInfo board to a human-readable string representation
+		/// </summary>
+		/// <param name="board">8x8 array representing the chess board</param>
+		/// <returns>String representation of the board with coordinates</returns>
+		public static string SerializeBoardToString(PieceInfo?[,] board)
+		{
+			var sb = new StringBuilder();
+			sb.AppendLine("   a b c d e f g h");
+			sb.AppendLine();
+			
+			// Print ranks from 8 to 1 (chess convention)
+			for (int rank = 7; rank >= 0; rank--)
+			{
+				sb.Append($"{rank + 1}  ");
+				for (int file = 0; file < 8; file++)
+				{
+					var piece = board[rank, file];
+					sb.Append(piece.HasValue ? $"{piece.Value.ToNotation()} " : ". ");
+				}
+				sb.AppendLine($" {rank + 1}");
+			}
+			
+			sb.AppendLine();
+			sb.AppendLine("   a b c d e f g h");
+			return sb.ToString();
+		}
+
+		/// <summary>
+		/// Converts PieceInfo board to string board when needed for API
+		/// </summary>
+		/// <param name="board">8x8 PieceInfo array</param>
+		/// <returns>8x8 string array for API compatibility</returns>
+		public static string?[,] ConvertToStringBoard(PieceInfo?[,] board)
+		{
+			var stringBoard = new string?[8, 8];
+			for (int rank = 0; rank < 8; rank++)
+			{
+				for (int file = 0; file < 8; file++)
+				{
+					stringBoard[rank, file] = board[rank, file]?.ToNotation();
+				}
+			}
+			return stringBoard;
 		}
 
 		/// <summary>
