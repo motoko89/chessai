@@ -44,11 +44,6 @@ namespace ChessAI.Core
 		public PieceColor CurrentPlayer => _currentPlayer;
 		
 		/// <summary>
-		/// Gets the current player as a string (for backward compatibility)
-		/// </summary>
-		public string CurrentPlayerString => _currentPlayer == PieceColor.White ? "white" : "black";
-		
-		/// <summary>
 		/// Gets a copy of the move history
 		/// </summary>
 		public List<string> MoveHistory => new(_moveHistory);
@@ -615,7 +610,7 @@ namespace ChessAI.Core
 				
 				// Emit signals
 				EmitSignal(SignalName.MoveExecuted, from, to, piece.Value.ToNotation());
-				EmitSignal(SignalName.GameStateChanged, CurrentPlayerString, false); // TODO: Check detection
+				EmitSignal(SignalName.GameStateChanged, CurrentPlayer.ToString(), false); // TODO: Check detection
 				
 				GD.Print($"Move executed: {from} -> {to} ({piece.Value.ToNotation()})");
 				return true;
@@ -731,7 +726,7 @@ namespace ChessAI.Core
 			CreatePieceNodes(); // Recreate visual pieces
 			
 			GD.Print("Chess board reset to initial position");
-			EmitSignal(SignalName.GameStateChanged, CurrentPlayerString, false);
+			EmitSignal(SignalName.GameStateChanged, CurrentPlayer.ToString(), false);
 		}
 
 		/// <summary>
@@ -743,7 +738,7 @@ namespace ChessAI.Core
 			UpdateStringBoard();
 			return BoardStateSerializer.SerializeBoardToJson(
 				_stringBoard, 
-				CurrentPlayerString, 
+				CurrentPlayer.ToString(), 
 				_moveHistory, 
 				_castleRights, 
 				_enPassantTarget
@@ -759,7 +754,7 @@ namespace ChessAI.Core
 			UpdateStringBoard();
 			return BoardStateSerializer.SerializeBoardToJsonString(
 				_stringBoard, 
-				CurrentPlayerString, 
+				CurrentPlayer.ToString(), 
 				_moveHistory, 
 				_castleRights, 
 				_enPassantTarget
@@ -775,7 +770,7 @@ namespace ChessAI.Core
 			var boardString = BoardStateSerializer.SerializeBoardToString(_stringBoard);
 			GD.Print("Current board state:");
 			GD.Print(boardString);
-			GD.Print($"To move: {CurrentPlayerString}");
+			GD.Print($"To move: {CurrentPlayer}");
 			GD.Print($"Move history: [{string.Join(", ", _moveHistory)}]");
 		}
 		#endregion
