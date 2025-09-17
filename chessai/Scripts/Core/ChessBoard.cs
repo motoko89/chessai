@@ -1,8 +1,6 @@
-using Godot;
-using ChessAI.Core;
 using ChessAI.Pieces;
+using Godot;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ChessAI.Core
 {
@@ -16,7 +14,6 @@ namespace ChessAI.Core
 		private const float SQUARE_SIZE = 64f; // 64px per square for 512px total board
 		private const float BOARD_OFFSET_X = 30f; // Space for rank labels (1-8)
 		private const float BOARD_OFFSET_Y = 30f; // Space for file labels (a-h)
-		private const float TOTAL_BOARD_SIZE = BOARD_SIZE * SQUARE_SIZE; // 512px
 		#endregion
 
 		#region Private Fields
