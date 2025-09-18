@@ -682,6 +682,7 @@ namespace ChessAI.Core
 		/// <param name="color">Highlight color</param>
 		public void HighlightSquare(Vector2I position, Color color)
 		{
+			GD.Print("HighlightSquare");
 			if (!IsValidPosition(position.X, position.Y))
 				return;
 
@@ -944,9 +945,10 @@ namespace ChessAI.Core
 		/// Selects a piece and shows its valid moves
 		/// </summary>
 		private void SelectPiece(ChessPiece piece)
-		{
-			// Only allow selecting pieces of the current player
-			if (piece.Color != _currentPlayer)
+        {
+            GD.Print("SelectPiece");
+            // Only allow selecting pieces of the current player
+            if (piece.Color != _currentPlayer)
 			{
 				return;
 			}
