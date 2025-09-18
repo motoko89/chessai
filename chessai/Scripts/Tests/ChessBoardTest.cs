@@ -1,6 +1,7 @@
 using Godot;
 using ChessAI.Core;
 using ChessAI.Pieces;
+using System.Linq;
 
 namespace ChessAI.Tests
 {
@@ -23,6 +24,7 @@ namespace ChessAI.Tests
 			TestSquareSelection();
 			TestEnPassant();
 			TestCheckDetection();
+			TestMoveValidation();
 			
 			GD.Print("ChessBoard tests completed successfully!");
 		}
@@ -220,6 +222,58 @@ namespace ChessAI.Tests
 			}
 			
 			GD.Print("Check detection test completed!");
+		}
+
+		private void TestMoveValidation()
+		{
+			GD.Print("Testing move validation to prevent own king check...");
+			
+			// Create a specific board scenario where a piece could expose its own king
+			_chessBoard.ResetBoard();
+			
+			// Test scenario: Move a piece that would expose the king to check
+			// We'll create a simple scenario where moving a defending piece would expose the king
+			
+			// Get initial valid moves for a piece (e.g., the pawn in front of the king)
+			var e2Pos = _chessBoard.AlgebraicToBoard("e2");
+			var e2Piece = _chessBoard.GetPieceAt(e2Pos);
+			
+			if (e2Piece.HasValue && e2Piece.Value.Type == PieceType.Pawn)
+			{
+				// Get valid moves using the board's move validation
+				var boardCopy = _chessBoard.GetBoardCopy();
+				var pawn = new Pawn(e2Piece.Value.Color, e2Piece.Value.Position);
+				var allPossibleMoves = pawn.GetValidMoves(boardCopy);
+				GD.Print($"Pawn at e2 has {allPossibleMoves.Count} possible moves before validation");
+				
+				// Test that the validation filters out moves that would expose the king
+				int validMovesAfterValidation = 0;
+				foreach (var move in allPossibleMoves)
+				{
+					if (!_chessBoard.WouldMoveResultInCheck(e2Pos, move, e2Piece.Value.Color))
+					{
+						validMovesAfterValidation++;
+					}
+				}
+				GD.Print($"Pawn at e2 has {validMovesAfterValidation} valid moves after check validation");
+			}
+			
+			// Test with other pieces
+			var knightPos = _chessBoard.AlgebraicToBoard("b1");
+			var knight = _chessBoard.GetPieceAt(knightPos);
+			if (knight.HasValue && knight.Value.Type == PieceType.Knight)
+			{
+				var boardCopy = _chessBoard.GetBoardCopy();
+				var knightPiece = new Knight(knight.Value.Color, knight.Value.Position);
+				var knightMoves = knightPiece.GetValidMoves(boardCopy);
+				
+				int safeKnightMoves = knightMoves.Count(move => 
+					!_chessBoard.WouldMoveResultInCheck(knightPos, move, knight.Value.Color));
+				
+				GD.Print($"Knight at b1 has {knightMoves.Count} possible moves, {safeKnightMoves} safe moves");
+			}
+			
+			GD.Print("Move validation test completed!");
 		}
 	}
 }

@@ -2,6 +2,7 @@ using ChessAI.Pieces;
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ChessAI.Core
 {
@@ -971,6 +972,12 @@ namespace ChessAI.Core
 			{
 				validMoves = piece.GetValidMoves(_board);
 			}
+			
+			// Filter out moves that would put own king in check
+			// (King already has this validation built-in, but we apply it to all pieces for consistency)
+			validMoves = validMoves.Where(move => 
+				!WouldMoveResultInCheck(piece.BoardPosition, move, piece.Color)).ToList();
+			
 			HighlightSquares(validMoves, Colors.LightGreen);
 			
 			EmitSignal(SignalName.SquareClicked, piece.BoardPosition);
