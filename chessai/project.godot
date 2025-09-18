@@ -25,8 +25,8 @@ AIService="*res://Scripts/AI/AIService.cs"
 
 [display]
 
-window/size/viewport_width=572
-window/size/viewport_height=572
+window/size/viewport_width=592
+window/size/viewport_height=602
 
 [dotnet]
 

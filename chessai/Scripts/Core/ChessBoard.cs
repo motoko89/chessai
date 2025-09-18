@@ -13,7 +13,7 @@ namespace ChessAI.Core
 		private const int BOARD_SIZE = 8;
 		private const float SQUARE_SIZE = 64f; // 64px per square for 512px total board
 		private const float BOARD_OFFSET_X = 30f; // Space for rank labels (1-8)
-		private const float BOARD_OFFSET_Y = 30f; // Space for file labels (a-h)
+		private const float BOARD_OFFSET_Y = 50f; // Space for file labels (a-h)
 		#endregion
 
 		#region Private Fields
