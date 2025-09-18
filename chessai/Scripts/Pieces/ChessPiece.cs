@@ -39,8 +39,10 @@ namespace ChessAI.Pieces
 
         public override void _Ready()
         {
+            GD.Print($"ChessPiece _Ready called for {this}");
             SetupVisualComponents();
             SetupInteraction();
+            GD.Print($"ChessPiece setup complete for {this}");
         }
 
         #region Abstract Methods
@@ -95,6 +97,7 @@ namespace ChessAI.Pieces
 
         private void SetupInteraction()
         {
+            GD.Print($"Setting up interaction for {this}");
             // Create click area
             _clickArea = new Area2D();
             _clickArea.Name = "ClickArea";
@@ -110,17 +113,24 @@ namespace ChessAI.Pieces
 
             // Connect signals
             _clickArea.InputEvent += OnInputEvent;
+            GD.Print($"Interaction setup complete for {this} - Area2D: {_clickArea}, InputPickable: {_clickArea.InputPickable}");
         }
         #endregion
 
         #region Interaction
         private void OnInputEvent(Node viewport, InputEvent @event, long shapeIdx)
         {
-            if (@event is InputEventMouseButton mouseEvent && 
-                mouseEvent.ButtonIndex == MouseButton.Left && 
-                mouseEvent.Pressed)
+            GD.Print($"OnInputEvent called for {this} - Event type: {@event.GetType().Name}");
+
+            if (@event is InputEventMouseButton mouseEvent)
             {
-                EmitSignal(SignalName.PieceClicked, this);
+                GD.Print($"Mouse event - Button: {mouseEvent.ButtonIndex}, Pressed: {mouseEvent.Pressed}");
+
+                if (mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
+                {
+                    GD.Print($"Left click detected on {this}");
+                    EmitSignal(SignalName.PieceClicked, this);
+                }
             }
         }
 

@@ -235,7 +235,8 @@ namespace ChessAI.Core
 			{
 				_pieceContainer = new Node2D();
 				_pieceContainer.Name = "PieceContainer";
-				AddChild(_pieceContainer);
+                _pieceContainer.ZIndex = 10;
+                AddChild(_pieceContainer);
 			}
 
 			// Clear existing pieces
@@ -254,11 +255,13 @@ namespace ChessAI.Core
 				{
 					var pieceInfo = _board[rank, file];
 					if (pieceInfo.HasValue)
-					{
-						var pieceNode = CreatePieceNode(pieceInfo.Value);
+                    {
+                        GD.Print($"Creating piece node for {pieceInfo.Value} at ({rank}, {file})");
+                        var pieceNode = CreatePieceNode(pieceInfo.Value);
 						_pieceNodes[rank, file] = pieceNode;
 						_pieceContainer.AddChild(pieceNode);
-					}
+                        GD.Print($"Added piece {pieceNode} to scene tree");
+                    }
 				}
 			}
 		}
