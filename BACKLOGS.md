@@ -64,10 +64,10 @@ A Western Chess game built with Godot .NET/Mono and Anthropic AI backend for a 4
 - [ ] Implement basic move validation system
 
 #### Task 2.2: Player Interaction
-- [ ] Piece selection system (click/tap detection)
+- [ ] Piece selection system (click/tap detection) for user, which is white pieces only
 - [ ] Highlight selected pieces visually: 4px thick golden square around the board square
-- [ ] Show valid move destinations with highlighting: 4px thick golden square around the board square
-- [ ] Implement move execution: click-to-move
+- [ ] Show valid move destinations with highlighting: 4px thick golden square around the board squares
+- [ ] Implement move execution: click-to-move, valid destinations only
 - [ ] Add simple move animation: move the piece from start square to end square horizontally first, then vertically/feedback
 
 ### Day 3: AI Integration & Game State
