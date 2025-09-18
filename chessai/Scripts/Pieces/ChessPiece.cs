@@ -98,6 +98,7 @@ namespace ChessAI.Pieces
             // Create click area
             _clickArea = new Area2D();
             _clickArea.Name = "ClickArea";
+            _clickArea.InputPickable = true;
             AddChild(_clickArea);
 
             var collision = new CollisionShape2D();
