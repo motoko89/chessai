@@ -553,6 +553,22 @@ namespace ChessAI.Core
 					return false;
 				}
 
+				// Check for en passant capture
+				bool isEnPassantCapture = false;
+				Vector2I? enPassantCapturePos = null;
+				
+				if (piece.Value.Type == PieceType.Pawn && !string.IsNullOrEmpty(_enPassantTarget))
+				{
+					var enPassantTargetPos = AlgebraicToBoard(_enPassantTarget);
+					if (toPos == enPassantTargetPos)
+					{
+						// This is an en passant capture
+						isEnPassantCapture = true;
+						// The captured pawn is on the same rank as the capturing pawn
+						enPassantCapturePos = new Vector2I(fromPos.X, toPos.Y);
+					}
+				}
+
 				// Update piece position
 				var updatedPiece = piece.Value;
 				updatedPiece.Position = toPos;
@@ -562,8 +578,24 @@ namespace ChessAI.Core
 				SetPieceAt(fromPos.X, fromPos.Y, null);
 				SetPieceAt(toPos.X, toPos.Y, updatedPiece);
 				
+				// Handle en passant capture (remove the captured pawn)
+				if (isEnPassantCapture && enPassantCapturePos.HasValue)
+				{
+					SetPieceAt(enPassantCapturePos.Value.X, enPassantCapturePos.Value.Y, null);
+					// Remove the visual piece node
+					var capturedPieceNode = _pieceNodes[enPassantCapturePos.Value.X, enPassantCapturePos.Value.Y];
+					if (capturedPieceNode != null)
+					{
+						capturedPieceNode.QueueFree();
+						_pieceNodes[enPassantCapturePos.Value.X, enPassantCapturePos.Value.Y] = null;
+					}
+				}
+				
 				// Update visual pieces
 				MovePieceNode(fromPos, toPos);
+				
+				// Update en passant target for next turn
+				UpdateEnPassantTarget(piece.Value, fromPos, toPos);
 				
 				// Add to move history
 				_moveHistory.Add($"{from}{to}");
@@ -604,6 +636,30 @@ namespace ChessAI.Core
 				// Move in the array
 				_pieceNodes[to.X, to.Y] = pieceNode;
 				_pieceNodes[from.X, from.Y] = null;
+			}
+		}
+
+		/// <summary>
+		/// Updates the en passant target square based on the move
+		/// </summary>
+		/// <param name="piece">The piece that was moved</param>
+		/// <param name="from">Source position</param>
+		/// <param name="to">Destination position</param>
+		private void UpdateEnPassantTarget(PieceInfo piece, Vector2I from, Vector2I to)
+		{
+			// Clear en passant target by default
+			_enPassantTarget = null;
+			
+			// Set en passant target if a pawn made a double move
+			if (piece.Type == PieceType.Pawn)
+			{
+				int moveDistance = System.Math.Abs(to.X - from.X);
+				if (moveDistance == 2) // Double move
+				{
+					// The en passant target is the square the pawn passed over
+					int targetRank = (from.X + to.X) / 2;
+					_enPassantTarget = BoardToAlgebraic(targetRank, to.Y);
+				}
 			}
 		}
 
@@ -659,7 +715,15 @@ namespace ChessAI.Core
 			HighlightSquare(piece.BoardPosition, Colors.Yellow);
 			
 			// Show valid moves
-			var validMoves = piece.GetValidMoves(_board);
+			List<Vector2I> validMoves;
+			if (piece.Type == PieceType.Pawn && piece is Pawn pawn)
+			{
+				validMoves = pawn.GetValidMoves(_board, _enPassantTarget);
+			}
+			else
+			{
+				validMoves = piece.GetValidMoves(_board);
+			}
 			HighlightSquares(validMoves, Colors.LightGreen);
 			
 			EmitSignal(SignalName.SquareClicked, piece.BoardPosition);

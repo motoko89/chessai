@@ -21,6 +21,7 @@ namespace ChessAI.Tests
 			TestCoordinateConversion();
 			TestBoardInitialization();
 			TestSquareSelection();
+			TestEnPassant();
 			
 			GD.Print("ChessBoard tests completed successfully!");
 		}
@@ -127,6 +128,56 @@ namespace ChessAI.Tests
 				GD.Print($"Current player: {_chessBoard.CurrentPlayer}");
 				GD.Print($"Move history: [{string.Join(", ", _chessBoard.MoveHistory)}]");
 			}
+		}
+
+		private void TestEnPassant()
+		{
+			GD.Print("Testing en passant logic...");
+			
+			// Reset board for clean test
+			_chessBoard.ResetBoard();
+			
+			// Test pawn double move setting en passant target
+			GD.Print("1. Testing pawn double move (e2->e4)");
+			bool move1 = _chessBoard.ExecuteMove("e2", "e4");
+			GD.Print($"   Move result: {move1}");
+			GD.Print($"   En passant target: {_chessBoard.EnPassantTarget ?? "None"}");
+			
+			// Make a move for black (to change turn)
+			GD.Print("2. Black moves (a7->a6)");
+			bool move2 = _chessBoard.ExecuteMove("a7", "a6");
+			GD.Print($"   Move result: {move2}");
+			GD.Print($"   En passant target after black move: {_chessBoard.EnPassantTarget ?? "None"}");
+			
+			// Test another pawn double move
+			GD.Print("3. White moves pawn double (d2->d4)");
+			bool move3 = _chessBoard.ExecuteMove("d2", "d4");
+			GD.Print($"   Move result: {move3}");
+			GD.Print($"   En passant target: {_chessBoard.EnPassantTarget ?? "None"}");
+			
+			// Move black pawn to enable en passant
+			GD.Print("4. Black moves (e7->e5)");
+			bool move4 = _chessBoard.ExecuteMove("e7", "e5");
+			GD.Print($"   Move result: {move4}");
+			GD.Print($"   En passant target: {_chessBoard.EnPassantTarget ?? "None"}");
+			
+			// Test en passant capture opportunity
+			GD.Print("5. Testing en passant moves for white pawn at d4");
+			var whitePawn = _chessBoard.GetPieceAt(_chessBoard.AlgebraicToBoard("d4"));
+			if (whitePawn.HasValue && whitePawn.Value.Type == PieceType.Pawn)
+			{
+				var pawn = new Pawn(whitePawn.Value.Color, whitePawn.Value.Position);
+				var boardCopy = _chessBoard.GetBoardCopy();
+				var enPassantMoves = pawn.GetValidMoves(boardCopy, _chessBoard.EnPassantTarget);
+				GD.Print($"   Available moves: {enPassantMoves.Count}");
+				foreach (var move in enPassantMoves)
+				{
+					string algebraic = _chessBoard.BoardToAlgebraic(move.X, move.Y);
+					GD.Print($"      -> {algebraic}");
+				}
+			}
+			
+			GD.Print("En passant test completed!");
 		}
 	}
 }
