@@ -1,5 +1,6 @@
 using ChessAI.Pieces;
 using Godot;
+using System;
 using System.Collections.Generic;
 
 namespace ChessAI.Core
@@ -436,6 +437,193 @@ namespace ChessAI.Core
 		}
 		#endregion
 
+		#region Check Detection
+		/// <summary>
+		/// Checks if a square is under attack by any piece of the specified color
+		/// </summary>
+		/// <param name="square">Square to check</param>
+		/// <param name="byColor">Color of attacking pieces</param>
+		/// <param name="board">Board state to check (optional, uses current board if null)</param>
+		/// <returns>True if the square is under attack</returns>
+		public bool IsSquareAttacked(Vector2I square, PieceColor byColor, PieceInfo?[,] board = null)
+		{
+			board ??= _board;
+			
+			// Check all squares on the board for pieces of the attacking color
+			for (int rank = 0; rank < BOARD_SIZE; rank++)
+			{
+				for (int file = 0; file < BOARD_SIZE; file++)
+				{
+					var piece = board[rank, file];
+					if (!piece.HasValue || piece.Value.Color != byColor)
+						continue;
+						
+					// Get the piece's valid moves and check if the target square is attacked
+					var validMoves = GetPieceValidMoves(piece.Value, board);
+					if (validMoves.Contains(square))
+						return true;
+				}
+			}
+			
+			return false;
+		}
+
+		/// <summary>
+		/// Gets valid moves for a specific piece (helper for attack detection)
+		/// </summary>
+		/// <param name="pieceInfo">Piece to get moves for</param>
+		/// <param name="board">Board state</param>
+		/// <returns>List of valid moves</returns>
+		private List<Vector2I> GetPieceValidMoves(PieceInfo pieceInfo, PieceInfo?[,] board)
+		{
+			// Create a temporary piece node to get valid moves
+			ChessPiece tempPiece = pieceInfo.Type switch
+			{
+				PieceType.Pawn => new Pawn(pieceInfo.Color, pieceInfo.Position),
+				PieceType.Rook => new Rook(pieceInfo.Color, pieceInfo.Position),
+				PieceType.Knight => new Knight(pieceInfo.Color, pieceInfo.Position),
+				PieceType.Bishop => new Bishop(pieceInfo.Color, pieceInfo.Position),
+				PieceType.Queen => new Queen(pieceInfo.Color, pieceInfo.Position),
+				PieceType.King => new King(pieceInfo.Color, pieceInfo.Position),
+				_ => throw new System.ArgumentException($"Unknown piece type: {pieceInfo.Type}")
+			};
+			
+			tempPiece.HasMoved = pieceInfo.HasMoved;
+			
+			// For pawns, we need to use attack moves specifically (not regular moves)
+			if (pieceInfo.Type == PieceType.Pawn)
+			{
+				return GetPawnAttackMoves(tempPiece as Pawn, board);
+			}
+			
+			// For kings, we only want basic moves (not castling) to avoid infinite recursion
+			if (pieceInfo.Type == PieceType.King)
+			{
+				return GetKingBasicMoves(tempPiece as King, board);
+			}
+			
+			return tempPiece.GetValidMoves(board);
+		}
+
+		/// <summary>
+		/// Gets only the attack moves for a pawn (diagonal captures)
+		/// </summary>
+		/// <param name="pawn">Pawn piece</param>
+		/// <param name="board">Board state</param>
+		/// <returns>List of attack squares</returns>
+		private List<Vector2I> GetPawnAttackMoves(Pawn pawn, PieceInfo?[,] board)
+		{
+			var attackMoves = new List<Vector2I>();
+			int direction = pawn.Color == PieceColor.White ? 1 : -1;
+			
+			// Check diagonal attack squares (regardless of whether there's a piece there)
+			var leftAttack = new Vector2I(pawn.BoardPosition.X + direction, pawn.BoardPosition.Y - 1);
+			var rightAttack = new Vector2I(pawn.BoardPosition.X + direction, pawn.BoardPosition.Y + 1);
+			
+			if (IsValidPosition(leftAttack.X, leftAttack.Y))
+				attackMoves.Add(leftAttack);
+				
+			if (IsValidPosition(rightAttack.X, rightAttack.Y))
+				attackMoves.Add(rightAttack);
+				
+			return attackMoves;
+		}
+
+		/// <summary>
+		/// Gets only the basic moves for a king (no castling to avoid recursion)
+		/// </summary>
+		/// <param name="king">King piece</param>
+		/// <param name="board">Board state</param>
+		/// <returns>List of basic king moves</returns>
+		private List<Vector2I> GetKingBasicMoves(King king, PieceInfo?[,] board)
+		{
+			var moves = new List<Vector2I>();
+			
+			var kingMoves = new Vector2I[]
+			{
+				new Vector2I(1, 0), new Vector2I(-1, 0), new Vector2I(0, 1), new Vector2I(0, -1),
+				new Vector2I(1, 1), new Vector2I(1, -1), new Vector2I(-1, 1), new Vector2I(-1, -1)
+			};
+
+			foreach (var move in kingMoves)
+			{
+				var targetPosition = king.BoardPosition + move;
+				if (IsValidPosition(targetPosition.X, targetPosition.Y))
+				{
+					var targetPiece = board[targetPosition.X, targetPosition.Y];
+					// Can move to empty square or capture enemy piece
+					if (!targetPiece.HasValue || targetPiece.Value.Color != king.Color)
+					{
+						moves.Add(targetPosition);
+					}
+				}
+			}
+			
+			return moves;
+		}
+
+		/// <summary>
+		/// Checks if the king of the specified color is currently in check
+		/// </summary>
+		/// <param name="kingColor">Color of the king to check</param>
+		/// <param name="board">Board state to check (optional, uses current board if null)</param>
+		/// <returns>True if the king is in check</returns>
+		public bool IsKingInCheck(PieceColor kingColor, PieceInfo?[,] board = null)
+		{
+			board ??= _board;
+			
+			// Find the king of the specified color
+			Vector2I? kingPosition = null;
+			for (int rank = 0; rank < BOARD_SIZE; rank++)
+			{
+				for (int file = 0; file < BOARD_SIZE; file++)
+				{
+					var piece = board[rank, file];
+					if (piece.HasValue && piece.Value.Type == PieceType.King && piece.Value.Color == kingColor)
+					{
+						kingPosition = new Vector2I(rank, file);
+						break;
+					}
+				}
+				if (kingPosition.HasValue) break;
+			}
+			
+			if (!kingPosition.HasValue)
+			{
+				GD.PrintErr($"Could not find {kingColor} king on the board!");
+				return false;
+			}
+			
+			// Check if the king's position is attacked by the enemy
+			PieceColor enemyColor = kingColor == PieceColor.White ? PieceColor.Black : PieceColor.White;
+			return IsSquareAttacked(kingPosition.Value, enemyColor, board);
+		}
+
+		/// <summary>
+		/// Checks if a move would put the moving player's king in check
+		/// </summary>
+		/// <param name="from">Source position</param>
+		/// <param name="to">Destination position</param>
+		/// <param name="playerColor">Color of the moving player</param>
+		/// <returns>True if the move would result in check</returns>
+		public bool WouldMoveResultInCheck(Vector2I from, Vector2I to, PieceColor playerColor)
+		{
+			// Create a copy of the board to simulate the move
+			var boardCopy = GetBoardCopy();
+			var piece = boardCopy[from.X, from.Y];
+			
+			if (!piece.HasValue)
+				return false;
+				
+			// Simulate the move
+			boardCopy[to.X, to.Y] = piece.Value;
+			boardCopy[from.X, from.Y] = null;
+			
+			// Check if the king would be in check after this move
+			return IsKingInCheck(playerColor, boardCopy);
+		}
+		#endregion
+
 		#region Input Handling
 		/// <summary>
 		/// Handles square click events
@@ -553,6 +741,42 @@ namespace ChessAI.Core
 					return false;
 				}
 
+				// Check for castling move
+				bool isCastlingMove = false;
+				Vector2I? rookFromPos = null;
+				Vector2I? rookToPos = null;
+				
+				if (piece.Value.Type == PieceType.King && !piece.Value.HasMoved)
+				{
+					int moveDistance = Math.Abs(toPos.Y - fromPos.Y);
+					if (moveDistance == 2) // King moved 2 squares horizontally = castling
+					{
+						isCastlingMove = true;
+						bool isKingside = toPos.Y > fromPos.Y; // Moving right = kingside
+						
+						if (isKingside)
+						{
+							// Kingside castling: rook moves from h-file to f-file
+							rookFromPos = new Vector2I(fromPos.X, 7);
+							rookToPos = new Vector2I(fromPos.X, 5);
+						}
+						else
+						{
+							// Queenside castling: rook moves from a-file to d-file
+							rookFromPos = new Vector2I(fromPos.X, 0);
+							rookToPos = new Vector2I(fromPos.X, 3);
+						}
+						
+						// Validate the rook exists and can castle
+						var rook = GetPieceAt(rookFromPos.Value);
+						if (!rook.HasValue || rook.Value.Type != PieceType.Rook || rook.Value.HasMoved)
+						{
+							GD.PrintErr($"Invalid castling move: rook not available at {BoardToAlgebraic(rookFromPos.Value.X, rookFromPos.Value.Y)}");
+							return false;
+						}
+					}
+				}
+
 				// Check for en passant capture
 				bool isEnPassantCapture = false;
 				Vector2I? enPassantCapturePos = null;
@@ -577,6 +801,25 @@ namespace ChessAI.Core
 				// Execute the move
 				SetPieceAt(fromPos.X, fromPos.Y, null);
 				SetPieceAt(toPos.X, toPos.Y, updatedPiece);
+				
+				// Handle castling rook movement
+				if (isCastlingMove && rookFromPos.HasValue && rookToPos.HasValue)
+				{
+					var rookPiece = GetPieceAt(rookFromPos.Value);
+					if (rookPiece.HasValue)
+					{
+						var updatedRook = rookPiece.Value;
+						updatedRook.Position = rookToPos.Value;
+						updatedRook.HasMoved = true;
+						
+						// Move the rook
+						SetPieceAt(rookFromPos.Value.X, rookFromPos.Value.Y, null);
+						SetPieceAt(rookToPos.Value.X, rookToPos.Value.Y, updatedRook);
+						
+						// Move the visual rook node
+						MovePieceNode(rookFromPos.Value, rookToPos.Value);
+					}
+				}
 				
 				// Handle en passant capture (remove the captured pawn)
 				if (isEnPassantCapture && enPassantCapturePos.HasValue)
@@ -719,6 +962,10 @@ namespace ChessAI.Core
 			if (piece.Type == PieceType.Pawn && piece is Pawn pawn)
 			{
 				validMoves = pawn.GetValidMoves(_board, _enPassantTarget);
+			}
+			else if (piece.Type == PieceType.King && piece is King king)
+			{
+				validMoves = king.GetValidMoves(_board, this);
 			}
 			else
 			{

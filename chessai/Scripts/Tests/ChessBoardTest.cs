@@ -22,6 +22,7 @@ namespace ChessAI.Tests
 			TestBoardInitialization();
 			TestSquareSelection();
 			TestEnPassant();
+			TestCheckDetection();
 			
 			GD.Print("ChessBoard tests completed successfully!");
 		}
@@ -178,6 +179,47 @@ namespace ChessAI.Tests
 			}
 			
 			GD.Print("En passant test completed!");
+		}
+
+		private void TestCheckDetection()
+		{
+			GD.Print("Testing check detection and castling safety...");
+			
+			// Test check detection with a simple scenario
+			_chessBoard.ResetBoard();
+			
+			// Test if the white king is in check initially (should be false)
+			bool whiteKingInCheck = _chessBoard.IsKingInCheck(PieceColor.White);
+			GD.Print($"White king is in check: {whiteKingInCheck}");
+			
+			// Test if the black king is in check initially (should be false)
+			bool blackKingInCheck = _chessBoard.IsKingInCheck(PieceColor.Black);
+			GD.Print($"Black king is in check: {blackKingInCheck}");
+			
+			// Test if a square is attacked
+			var e4Pos = _chessBoard.AlgebraicToBoard("e4");
+			bool isE4AttackedByBlack = _chessBoard.IsSquareAttacked(e4Pos, PieceColor.Black);
+			bool isE4AttackedByWhite = _chessBoard.IsSquareAttacked(e4Pos, PieceColor.White);
+			GD.Print($"Square e4 is attacked by black: {isE4AttackedByBlack}");
+			GD.Print($"Square e4 is attacked by white: {isE4AttackedByWhite}");
+			
+			// Test castling availability (should be possible initially)
+			var whiteKingPos = _chessBoard.AlgebraicToBoard("e1");
+			var king = _chessBoard.GetPieceAt(whiteKingPos);
+			if (king.HasValue && king.Value.Type == PieceType.King)
+			{
+				var boardCopy = _chessBoard.GetBoardCopy();
+				var kingScript = new King(king.Value.Color, king.Value.Position);
+				var castlingMoves = kingScript.GetCastlingMoves(boardCopy, _chessBoard);
+				GD.Print($"Available castling moves for white king: {castlingMoves.Count}");
+				foreach (var move in castlingMoves)
+				{
+					string algebraic = _chessBoard.BoardToAlgebraic(move.X, move.Y);
+					GD.Print($"   Castling move available: {algebraic}");
+				}
+			}
+			
+			GD.Print("Check detection test completed!");
 		}
 	}
 }
