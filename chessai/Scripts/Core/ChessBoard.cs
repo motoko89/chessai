@@ -98,15 +98,30 @@ namespace ChessAI.Core
 		{
 			CreateVisualBoard();
 			CreatePieceNodes();
-		}
-		#endregion
 
-		#region Initialization
+            // Debug: Print scene tree structure
+            GD.Print("=== Scene Tree Structure ===");
+            PrintSceneTree(this, 0);
+        }
 
-		/// <summary>
-		/// Creates the visual representation of the chess board
-		/// </summary>
-		private void CreateVisualBoard()
+        private void PrintSceneTree(Node node, int depth)
+        {
+            string indent = new string(' ', depth * 2);
+            GD.Print($"{indent}{node.Name} ({node.GetType().Name})");
+
+            foreach (Node child in node.GetChildren())
+            {
+                PrintSceneTree(child, depth + 1);
+            }
+        }
+        #endregion
+
+        #region Initialization
+
+        /// <summary>
+        /// Creates the visual representation of the chess board
+        /// </summary>
+        private void CreateVisualBoard()
 		{
 			// Create container for squares
 			_squareContainer = new Node2D();
@@ -131,6 +146,7 @@ namespace ChessAI.Core
 		private void CreateSquare(int rank, int file)
 		{
 			var square = new ColorRect();
+			square.MouseFilter = Control.MouseFilterEnum.Ignore;
 			square.Name = $"Square_{rank}_{file}";
 			square.Size = new Vector2(SQUARE_SIZE, SQUARE_SIZE);
 			square.Position = BoardToScreen(rank, file);
@@ -225,10 +241,38 @@ namespace ChessAI.Core
 			return piece;
 		}
 
-		/// <summary>
-		/// Creates and displays all piece nodes on the board
-		/// </summary>
-		private void CreatePieceNodes()
+        public override void _Input(InputEvent @event)
+        {
+            if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed)
+            {
+                GD.Print($"ChessBoard _Input: Mouse click detected at {mouseEvent.Position}");
+
+                // Check if click is within board bounds
+                var boardPos = ScreenToBoard(mouseEvent.Position);
+                if (boardPos.HasValue)
+                {
+                    GD.Print($"Click is within board at position {boardPos.Value}");
+                    var piece = GetPieceAt(boardPos.Value);
+                    if (piece.HasValue)
+                    {
+                        GD.Print($"Piece found at click position: {piece.Value}");
+                    }
+                    else
+                    {
+                        GD.Print("No piece at click position");
+                    }
+                }
+                else
+                {
+                    GD.Print("Click is outside board area");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Creates and displays all piece nodes on the board
+        /// </summary>
+        private void CreatePieceNodes()
 		{
 			// Create container for pieces
 			if (_pieceContainer == null)

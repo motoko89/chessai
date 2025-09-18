@@ -1,0 +1,395 @@
+Godot Engine v4.5.stable.mono.official.876b29033 - https://godotengine.org
+Metal 3.2 - Forward Mobile - Using Device #0: Apple - Apple M1 Max (Apple7)
+
+Chess board initialized with starting position
+  ERROR: Anthropic API key not found. Set ANTHROPIC_API_KEY environment variable or configure in Project Settings.
+AIService singleton initialized
+Visual chess board created
+Creating piece node for White Rook at (0, 0) at (0, 0)
+ChessPiece _Ready called for White Rook at (0, 0)
+Setting up interaction for White Rook at (0, 0)
+Interaction setup complete for White Rook at (0, 0) - Area2D: <Area2D#33906755138>, InputPickable: True
+ChessPiece setup complete for White Rook at (0, 0)
+Added piece White Rook at (0, 0) to scene tree
+Creating piece node for White Knight at (0, 1) at (0, 1)
+ChessPiece _Ready called for White Knight at (0, 1)
+Setting up interaction for White Knight at (0, 1)
+Interaction setup complete for White Knight at (0, 1) - Area2D: <Area2D#34393294411>, InputPickable: True
+ChessPiece setup complete for White Knight at (0, 1)
+Added piece White Knight at (0, 1) to scene tree
+Creating piece node for White Bishop at (0, 2) at (0, 2)
+ChessPiece _Ready called for White Bishop at (0, 2)
+Setting up interaction for White Bishop at (0, 2)
+Interaction setup complete for White Bishop at (0, 2) - Area2D: <Area2D#34863056466>, InputPickable: True
+ChessPiece setup complete for White Bishop at (0, 2)
+Added piece White Bishop at (0, 2) to scene tree
+Creating piece node for White Queen at (0, 3) at (0, 3)
+ChessPiece _Ready called for White Queen at (0, 3)
+Setting up interaction for White Queen at (0, 3)
+Interaction setup complete for White Queen at (0, 3) - Area2D: <Area2D#35332818521>, InputPickable: True
+ChessPiece setup complete for White Queen at (0, 3)
+Added piece White Queen at (0, 3) to scene tree
+Creating piece node for White King at (0, 4) at (0, 4)
+ChessPiece _Ready called for White King at (0, 4)
+Setting up interaction for White King at (0, 4)
+Interaction setup complete for White King at (0, 4) - Area2D: <Area2D#35802580576>, InputPickable: True
+ChessPiece setup complete for White King at (0, 4)
+Added piece White King at (0, 4) to scene tree
+Creating piece node for White Bishop at (0, 5) at (0, 5)
+ChessPiece _Ready called for White Bishop at (0, 5)
+Setting up interaction for White Bishop at (0, 5)
+Interaction setup complete for White Bishop at (0, 5) - Area2D: <Area2D#35903243878>, InputPickable: True
+ChessPiece setup complete for White Bishop at (0, 5)
+Added piece White Bishop at (0, 5) to scene tree
+Creating piece node for White Knight at (0, 6) at (0, 6)
+ChessPiece _Ready called for White Knight at (0, 6)
+Setting up interaction for White Knight at (0, 6)
+Interaction setup complete for White Knight at (0, 6) - Area2D: <Area2D#36003907179>, InputPickable: True
+ChessPiece setup complete for White Knight at (0, 6)
+Added piece White Knight at (0, 6) to scene tree
+Creating piece node for White Rook at (0, 7) at (0, 7)
+ChessPiece _Ready called for White Rook at (0, 7)
+Setting up interaction for White Rook at (0, 7)
+Interaction setup complete for White Rook at (0, 7) - Area2D: <Area2D#36104570480>, InputPickable: True
+ChessPiece setup complete for White Rook at (0, 7)
+Added piece White Rook at (0, 7) to scene tree
+Creating piece node for White Pawn at (1, 0) at (1, 0)
+ChessPiece _Ready called for White Pawn at (1, 0)
+Setting up interaction for White Pawn at (1, 0)
+Interaction setup complete for White Pawn at (1, 0) - Area2D: <Area2D#36574332534>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 0)
+Added piece White Pawn at (1, 0) to scene tree
+Creating piece node for White Pawn at (1, 1) at (1, 1)
+ChessPiece _Ready called for White Pawn at (1, 1)
+Setting up interaction for White Pawn at (1, 1)
+Interaction setup complete for White Pawn at (1, 1) - Area2D: <Area2D#36674995836>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 1)
+Added piece White Pawn at (1, 1) to scene tree
+Creating piece node for White Pawn at (1, 2) at (1, 2)
+ChessPiece _Ready called for White Pawn at (1, 2)
+Setting up interaction for White Pawn at (1, 2)
+Interaction setup complete for White Pawn at (1, 2) - Area2D: <Area2D#36775659137>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 2)
+Added piece White Pawn at (1, 2) to scene tree
+Creating piece node for White Pawn at (1, 3) at (1, 3)
+ChessPiece _Ready called for White Pawn at (1, 3)
+Setting up interaction for White Pawn at (1, 3)
+Interaction setup complete for White Pawn at (1, 3) - Area2D: <Area2D#36876322438>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 3)
+Added piece White Pawn at (1, 3) to scene tree
+Creating piece node for White Pawn at (1, 4) at (1, 4)
+ChessPiece _Ready called for White Pawn at (1, 4)
+Setting up interaction for White Pawn at (1, 4)
+Interaction setup complete for White Pawn at (1, 4) - Area2D: <Area2D#36976985739>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 4)
+Added piece White Pawn at (1, 4) to scene tree
+Creating piece node for White Pawn at (1, 5) at (1, 5)
+ChessPiece _Ready called for White Pawn at (1, 5)
+Setting up interaction for White Pawn at (1, 5)
+Interaction setup complete for White Pawn at (1, 5) - Area2D: <Area2D#37077649040>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 5)
+Added piece White Pawn at (1, 5) to scene tree
+Creating piece node for White Pawn at (1, 6) at (1, 6)
+ChessPiece _Ready called for White Pawn at (1, 6)
+Setting up interaction for White Pawn at (1, 6)
+Interaction setup complete for White Pawn at (1, 6) - Area2D: <Area2D#37178312341>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 6)
+Added piece White Pawn at (1, 6) to scene tree
+Creating piece node for White Pawn at (1, 7) at (1, 7)
+ChessPiece _Ready called for White Pawn at (1, 7)
+Setting up interaction for White Pawn at (1, 7)
+Interaction setup complete for White Pawn at (1, 7) - Area2D: <Area2D#37278975642>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 7)
+Added piece White Pawn at (1, 7) to scene tree
+Creating piece node for Black Pawn at (6, 0) at (6, 0)
+ChessPiece _Ready called for Black Pawn at (6, 0)
+Setting up interaction for Black Pawn at (6, 0)
+Interaction setup complete for Black Pawn at (6, 0) - Area2D: <Area2D#37631297183>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 0)
+Added piece Black Pawn at (6, 0) to scene tree
+Creating piece node for Black Pawn at (6, 1) at (6, 1)
+ChessPiece _Ready called for Black Pawn at (6, 1)
+Setting up interaction for Black Pawn at (6, 1)
+Interaction setup complete for Black Pawn at (6, 1) - Area2D: <Area2D#37731960485>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 1)
+Added piece Black Pawn at (6, 1) to scene tree
+Creating piece node for Black Pawn at (6, 2) at (6, 2)
+ChessPiece _Ready called for Black Pawn at (6, 2)
+Setting up interaction for Black Pawn at (6, 2)
+Interaction setup complete for Black Pawn at (6, 2) - Area2D: <Area2D#37832623786>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 2)
+Added piece Black Pawn at (6, 2) to scene tree
+Creating piece node for Black Pawn at (6, 3) at (6, 3)
+ChessPiece _Ready called for Black Pawn at (6, 3)
+Setting up interaction for Black Pawn at (6, 3)
+Interaction setup complete for Black Pawn at (6, 3) - Area2D: <Area2D#37933287087>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 3)
+Added piece Black Pawn at (6, 3) to scene tree
+Creating piece node for Black Pawn at (6, 4) at (6, 4)
+ChessPiece _Ready called for Black Pawn at (6, 4)
+Setting up interaction for Black Pawn at (6, 4)
+Interaction setup complete for Black Pawn at (6, 4) - Area2D: <Area2D#38033950388>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 4)
+Added piece Black Pawn at (6, 4) to scene tree
+Creating piece node for Black Pawn at (6, 5) at (6, 5)
+ChessPiece _Ready called for Black Pawn at (6, 5)
+Setting up interaction for Black Pawn at (6, 5)
+Interaction setup complete for Black Pawn at (6, 5) - Area2D: <Area2D#38134613689>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 5)
+Added piece Black Pawn at (6, 5) to scene tree
+Creating piece node for Black Pawn at (6, 6) at (6, 6)
+ChessPiece _Ready called for Black Pawn at (6, 6)
+Setting up interaction for Black Pawn at (6, 6)
+Interaction setup complete for Black Pawn at (6, 6) - Area2D: <Area2D#38235276990>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 6)
+Added piece Black Pawn at (6, 6) to scene tree
+Creating piece node for Black Pawn at (6, 7) at (6, 7)
+ChessPiece _Ready called for Black Pawn at (6, 7)
+Setting up interaction for Black Pawn at (6, 7)
+Interaction setup complete for Black Pawn at (6, 7) - Area2D: <Area2D#38335940291>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 7)
+Added piece Black Pawn at (6, 7) to scene tree
+Creating piece node for Black Rook at (7, 0) at (7, 0)
+ChessPiece _Ready called for Black Rook at (7, 0)
+Setting up interaction for Black Rook at (7, 0)
+Interaction setup complete for Black Rook at (7, 0) - Area2D: <Area2D#38688261832>, InputPickable: True
+ChessPiece setup complete for Black Rook at (7, 0)
+Added piece Black Rook at (7, 0) to scene tree
+Creating piece node for Black Knight at (7, 1) at (7, 1)
+ChessPiece _Ready called for Black Knight at (7, 1)
+Setting up interaction for Black Knight at (7, 1)
+Interaction setup complete for Black Knight at (7, 1) - Area2D: <Area2D#39040583374>, InputPickable: True
+ChessPiece setup complete for Black Knight at (7, 1)
+Added piece Black Knight at (7, 1) to scene tree
+Creating piece node for Black Bishop at (7, 2) at (7, 2)
+ChessPiece _Ready called for Black Bishop at (7, 2)
+Setting up interaction for Black Bishop at (7, 2)
+Interaction setup complete for Black Bishop at (7, 2) - Area2D: <Area2D#39392904916>, InputPickable: True
+ChessPiece setup complete for Black Bishop at (7, 2)
+Added piece Black Bishop at (7, 2) to scene tree
+Creating piece node for Black Queen at (7, 3) at (7, 3)
+ChessPiece _Ready called for Black Queen at (7, 3)
+Setting up interaction for Black Queen at (7, 3)
+Interaction setup complete for Black Queen at (7, 3) - Area2D: <Area2D#39745226458>, InputPickable: True
+ChessPiece setup complete for Black Queen at (7, 3)
+Added piece Black Queen at (7, 3) to scene tree
+Creating piece node for Black King at (7, 4) at (7, 4)
+ChessPiece _Ready called for Black King at (7, 4)
+Setting up interaction for Black King at (7, 4)
+Interaction setup complete for Black King at (7, 4) - Area2D: <Area2D#40097548000>, InputPickable: True
+ChessPiece setup complete for Black King at (7, 4)
+Added piece Black King at (7, 4) to scene tree
+Creating piece node for Black Bishop at (7, 5) at (7, 5)
+ChessPiece _Ready called for Black Bishop at (7, 5)
+Setting up interaction for Black Bishop at (7, 5)
+Interaction setup complete for Black Bishop at (7, 5) - Area2D: <Area2D#40198211302>, InputPickable: True
+ChessPiece setup complete for Black Bishop at (7, 5)
+Added piece Black Bishop at (7, 5) to scene tree
+Creating piece node for Black Knight at (7, 6) at (7, 6)
+ChessPiece _Ready called for Black Knight at (7, 6)
+Setting up interaction for Black Knight at (7, 6)
+Interaction setup complete for Black Knight at (7, 6) - Area2D: <Area2D#40298874603>, InputPickable: True
+ChessPiece setup complete for Black Knight at (7, 6)
+Added piece Black Knight at (7, 6) to scene tree
+Creating piece node for Black Rook at (7, 7) at (7, 7)
+ChessPiece _Ready called for Black Rook at (7, 7)
+Setting up interaction for Black Rook at (7, 7)
+Interaction setup complete for Black Rook at (7, 7) - Area2D: <Area2D#40399537904>, InputPickable: True
+ChessPiece setup complete for Black Rook at (7, 7)
+Added piece Black Rook at (7, 7) to scene tree
+Creating piece node for White Rook at (0, 0) at (0, 0)
+ChessPiece _Ready called for White Rook at (0, 0)
+Setting up interaction for White Rook at (0, 0)
+Interaction setup complete for White Rook at (0, 0) - Area2D: <Area2D#40500201205>, InputPickable: True
+ChessPiece setup complete for White Rook at (0, 0)
+Added piece White Rook at (0, 0) to scene tree
+Creating piece node for White Knight at (0, 1) at (0, 1)
+ChessPiece _Ready called for White Knight at (0, 1)
+Setting up interaction for White Knight at (0, 1)
+Interaction setup complete for White Knight at (0, 1) - Area2D: <Area2D#40600864506>, InputPickable: True
+ChessPiece setup complete for White Knight at (0, 1)
+Added piece White Knight at (0, 1) to scene tree
+Creating piece node for White Bishop at (0, 2) at (0, 2)
+ChessPiece _Ready called for White Bishop at (0, 2)
+Setting up interaction for White Bishop at (0, 2)
+Interaction setup complete for White Bishop at (0, 2) - Area2D: <Area2D#40701527807>, InputPickable: True
+ChessPiece setup complete for White Bishop at (0, 2)
+Added piece White Bishop at (0, 2) to scene tree
+Creating piece node for White Queen at (0, 3) at (0, 3)
+ChessPiece _Ready called for White Queen at (0, 3)
+Setting up interaction for White Queen at (0, 3)
+Interaction setup complete for White Queen at (0, 3) - Area2D: <Area2D#40802191108>, InputPickable: True
+ChessPiece setup complete for White Queen at (0, 3)
+Added piece White Queen at (0, 3) to scene tree
+Creating piece node for White King at (0, 4) at (0, 4)
+ChessPiece _Ready called for White King at (0, 4)
+Setting up interaction for White King at (0, 4)
+Interaction setup complete for White King at (0, 4) - Area2D: <Area2D#40902854409>, InputPickable: True
+ChessPiece setup complete for White King at (0, 4)
+Added piece White King at (0, 4) to scene tree
+Creating piece node for White Bishop at (0, 5) at (0, 5)
+ChessPiece _Ready called for White Bishop at (0, 5)
+Setting up interaction for White Bishop at (0, 5)
+Interaction setup complete for White Bishop at (0, 5) - Area2D: <Area2D#41003517710>, InputPickable: True
+ChessPiece setup complete for White Bishop at (0, 5)
+Added piece White Bishop at (0, 5) to scene tree
+Creating piece node for White Knight at (0, 6) at (0, 6)
+ChessPiece _Ready called for White Knight at (0, 6)
+Setting up interaction for White Knight at (0, 6)
+Interaction setup complete for White Knight at (0, 6) - Area2D: <Area2D#41104181011>, InputPickable: True
+ChessPiece setup complete for White Knight at (0, 6)
+Added piece White Knight at (0, 6) to scene tree
+Creating piece node for White Rook at (0, 7) at (0, 7)
+ChessPiece _Ready called for White Rook at (0, 7)
+Setting up interaction for White Rook at (0, 7)
+Interaction setup complete for White Rook at (0, 7) - Area2D: <Area2D#41204844312>, InputPickable: True
+ChessPiece setup complete for White Rook at (0, 7)
+Added piece White Rook at (0, 7) to scene tree
+Creating piece node for White Pawn at (1, 0) at (1, 0)
+ChessPiece _Ready called for White Pawn at (1, 0)
+Setting up interaction for White Pawn at (1, 0)
+Interaction setup complete for White Pawn at (1, 0) - Area2D: <Area2D#41305507613>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 0)
+Added piece White Pawn at (1, 0) to scene tree
+Creating piece node for White Pawn at (1, 1) at (1, 1)
+ChessPiece _Ready called for White Pawn at (1, 1)
+Setting up interaction for White Pawn at (1, 1)
+Interaction setup complete for White Pawn at (1, 1) - Area2D: <Area2D#41406170914>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 1)
+Added piece White Pawn at (1, 1) to scene tree
+Creating piece node for White Pawn at (1, 2) at (1, 2)
+ChessPiece _Ready called for White Pawn at (1, 2)
+Setting up interaction for White Pawn at (1, 2)
+Interaction setup complete for White Pawn at (1, 2) - Area2D: <Area2D#41506834215>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 2)
+Added piece White Pawn at (1, 2) to scene tree
+Creating piece node for White Pawn at (1, 3) at (1, 3)
+ChessPiece _Ready called for White Pawn at (1, 3)
+Setting up interaction for White Pawn at (1, 3)
+Interaction setup complete for White Pawn at (1, 3) - Area2D: <Area2D#41607497516>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 3)
+Added piece White Pawn at (1, 3) to scene tree
+Creating piece node for White Pawn at (1, 4) at (1, 4)
+ChessPiece _Ready called for White Pawn at (1, 4)
+Setting up interaction for White Pawn at (1, 4)
+Interaction setup complete for White Pawn at (1, 4) - Area2D: <Area2D#41708160817>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 4)
+Added piece White Pawn at (1, 4) to scene tree
+Creating piece node for White Pawn at (1, 5) at (1, 5)
+ChessPiece _Ready called for White Pawn at (1, 5)
+Setting up interaction for White Pawn at (1, 5)
+Interaction setup complete for White Pawn at (1, 5) - Area2D: <Area2D#41808824118>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 5)
+Added piece White Pawn at (1, 5) to scene tree
+Creating piece node for White Pawn at (1, 6) at (1, 6)
+ChessPiece _Ready called for White Pawn at (1, 6)
+Setting up interaction for White Pawn at (1, 6)
+Interaction setup complete for White Pawn at (1, 6) - Area2D: <Area2D#41909487419>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 6)
+Added piece White Pawn at (1, 6) to scene tree
+Creating piece node for White Pawn at (1, 7) at (1, 7)
+ChessPiece _Ready called for White Pawn at (1, 7)
+Setting up interaction for White Pawn at (1, 7)
+Interaction setup complete for White Pawn at (1, 7) - Area2D: <Area2D#42010150720>, InputPickable: True
+ChessPiece setup complete for White Pawn at (1, 7)
+Added piece White Pawn at (1, 7) to scene tree
+Creating piece node for Black Pawn at (6, 0) at (6, 0)
+ChessPiece _Ready called for Black Pawn at (6, 0)
+Setting up interaction for Black Pawn at (6, 0)
+Interaction setup complete for Black Pawn at (6, 0) - Area2D: <Area2D#42110814021>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 0)
+Added piece Black Pawn at (6, 0) to scene tree
+Creating piece node for Black Pawn at (6, 1) at (6, 1)
+ChessPiece _Ready called for Black Pawn at (6, 1)
+Setting up interaction for Black Pawn at (6, 1)
+Interaction setup complete for Black Pawn at (6, 1) - Area2D: <Area2D#42211477322>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 1)
+Added piece Black Pawn at (6, 1) to scene tree
+Creating piece node for Black Pawn at (6, 2) at (6, 2)
+ChessPiece _Ready called for Black Pawn at (6, 2)
+Setting up interaction for Black Pawn at (6, 2)
+Interaction setup complete for Black Pawn at (6, 2) - Area2D: <Area2D#42312140623>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 2)
+Added piece Black Pawn at (6, 2) to scene tree
+Creating piece node for Black Pawn at (6, 3) at (6, 3)
+ChessPiece _Ready called for Black Pawn at (6, 3)
+Setting up interaction for Black Pawn at (6, 3)
+Interaction setup complete for Black Pawn at (6, 3) - Area2D: <Area2D#42412803924>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 3)
+Added piece Black Pawn at (6, 3) to scene tree
+Creating piece node for Black Pawn at (6, 4) at (6, 4)
+ChessPiece _Ready called for Black Pawn at (6, 4)
+Setting up interaction for Black Pawn at (6, 4)
+Interaction setup complete for Black Pawn at (6, 4) - Area2D: <Area2D#42513467225>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 4)
+Added piece Black Pawn at (6, 4) to scene tree
+Creating piece node for Black Pawn at (6, 5) at (6, 5)
+ChessPiece _Ready called for Black Pawn at (6, 5)
+Setting up interaction for Black Pawn at (6, 5)
+Interaction setup complete for Black Pawn at (6, 5) - Area2D: <Area2D#42614130526>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 5)
+Added piece Black Pawn at (6, 5) to scene tree
+Creating piece node for Black Pawn at (6, 6) at (6, 6)
+ChessPiece _Ready called for Black Pawn at (6, 6)
+Setting up interaction for Black Pawn at (6, 6)
+Interaction setup complete for Black Pawn at (6, 6) - Area2D: <Area2D#42714793827>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 6)
+Added piece Black Pawn at (6, 6) to scene tree
+Creating piece node for Black Pawn at (6, 7) at (6, 7)
+ChessPiece _Ready called for Black Pawn at (6, 7)
+Setting up interaction for Black Pawn at (6, 7)
+Interaction setup complete for Black Pawn at (6, 7) - Area2D: <Area2D#42815457128>, InputPickable: True
+ChessPiece setup complete for Black Pawn at (6, 7)
+Added piece Black Pawn at (6, 7) to scene tree
+Creating piece node for Black Rook at (7, 0) at (7, 0)
+ChessPiece _Ready called for Black Rook at (7, 0)
+Setting up interaction for Black Rook at (7, 0)
+Interaction setup complete for Black Rook at (7, 0) - Area2D: <Area2D#42916120429>, InputPickable: True
+ChessPiece setup complete for Black Rook at (7, 0)
+Added piece Black Rook at (7, 0) to scene tree
+Creating piece node for Black Knight at (7, 1) at (7, 1)
+ChessPiece _Ready called for Black Knight at (7, 1)
+Setting up interaction for Black Knight at (7, 1)
+Interaction setup complete for Black Knight at (7, 1) - Area2D: <Area2D#43016783730>, InputPickable: True
+ChessPiece setup complete for Black Knight at (7, 1)
+Added piece Black Knight at (7, 1) to scene tree
+Creating piece node for Black Bishop at (7, 2) at (7, 2)
+ChessPiece _Ready called for Black Bishop at (7, 2)
+Setting up interaction for Black Bishop at (7, 2)
+Interaction setup complete for Black Bishop at (7, 2) - Area2D: <Area2D#43117447031>, InputPickable: True
+ChessPiece setup complete for Black Bishop at (7, 2)
+Added piece Black Bishop at (7, 2) to scene tree
+Creating piece node for Black Queen at (7, 3) at (7, 3)
+ChessPiece _Ready called for Black Queen at (7, 3)
+Setting up interaction for Black Queen at (7, 3)
+Interaction setup complete for Black Queen at (7, 3) - Area2D: <Area2D#43218110332>, InputPickable: True
+ChessPiece setup complete for Black Queen at (7, 3)
+Added piece Black Queen at (7, 3) to scene tree
+Creating piece node for Black King at (7, 4) at (7, 4)
+ChessPiece _Ready called for Black King at (7, 4)
+Setting up interaction for Black King at (7, 4)
+Interaction setup complete for Black King at (7, 4) - Area2D: <Area2D#43318773633>, InputPickable: True
+ChessPiece setup complete for Black King at (7, 4)
+Added piece Black King at (7, 4) to scene tree
+Creating piece node for Black Bishop at (7, 5) at (7, 5)
+ChessPiece _Ready called for Black Bishop at (7, 5)
+Setting up interaction for Black Bishop at (7, 5)
+Interaction setup complete for Black Bishop at (7, 5) - Area2D: <Area2D#43419436934>, InputPickable: True
+ChessPiece setup complete for Black Bishop at (7, 5)
+Added piece Black Bishop at (7, 5) to scene tree
+Creating piece node for Black Knight at (7, 6) at (7, 6)
+ChessPiece _Ready called for Black Knight at (7, 6)
+Setting up interaction for Black Knight at (7, 6)
+Interaction setup complete for Black Knight at (7, 6) - Area2D: <Area2D#43520100235>, InputPickable: True
+ChessPiece setup complete for Black Knight at (7, 6)
+Added piece Black Knight at (7, 6) to scene tree
+Creating piece node for Black Rook at (7, 7) at (7, 7)
+ChessPiece _Ready called for Black Rook at (7, 7)
+Setting up interaction for Black Rook at (7, 7)
+Interaction setup complete for Black Rook at (7, 7) - Area2D: <Area2D#43620763536>, InputPickable: True
+ChessPiece setup complete for Black Rook at (7, 7)
+Added piece Black Rook at (7, 7) to scene tree
+Chess board reset to initial position
+Chess board initialized successfully
+Chess AI Game started!
+Current player: White
