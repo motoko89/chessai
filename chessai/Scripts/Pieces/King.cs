@@ -73,13 +73,9 @@ namespace ChessAI.Pieces
             {
                 var targetPosition = BoardPosition + move;
                 
-                if (IsValidPosition(targetPosition) && CanMoveTo(board, targetPosition))
+                if (IsValidPosition(targetPosition) && CanMoveTo(board, targetPosition) && !chessBoard.WouldMoveResultInCheck(BoardPosition, targetPosition, Color))
                 {
-                    // Additional safety check: don't move into check
-                    if (!chessBoard.WouldMoveResultInCheck(BoardPosition, targetPosition, Color))
-                    {
-                        moves.Add(targetPosition);
-                    }
+                    moves.Add(targetPosition);
                 }
             }
 
@@ -215,96 +211,6 @@ namespace ChessAI.Pieces
                 }
             }
 
-            return true;
-        }
-
-        /// <summary>
-        /// Checks if the king is currently in check
-        /// </summary>
-        /// <param name="board">Board state to check</param>
-        /// <param name="chessBoard">ChessBoard instance for check detection (optional)</param>
-        /// <returns>True if the king is in check</returns>
-        public bool IsInCheck(PieceInfo?[,] board, ChessAI.Core.ChessBoard chessBoard = null)
-        {
-            if (chessBoard != null)
-            {
-                return chessBoard.IsKingInCheck(Color, board);
-            }
-            
-            // Fallback implementation if no ChessBoard is provided
-            // Check if any enemy piece can attack the king's position
-            PieceColor enemyColor = Color == PieceColor.White ? PieceColor.Black : PieceColor.White;
-            
-            for (int rank = 0; rank < 8; rank++)
-            {
-                for (int file = 0; file < 8; file++)
-                {
-                    var piece = board[rank, file];
-                    if (!piece.HasValue || piece.Value.Color != enemyColor)
-                        continue;
-                        
-                    // Simple check for enemy pieces that could attack this king
-                    // This is a basic implementation - the ChessBoard method is more comprehensive
-                    if (CanEnemyPieceAttackKing(piece.Value, board))
-                        return true;
-                }
-            }
-            
-            return false;
-        }
-
-        /// <summary>
-        /// Basic check if an enemy piece can attack the king (fallback method)
-        /// </summary>
-        private bool CanEnemyPieceAttackKing(PieceInfo enemyPiece, PieceInfo?[,] board)
-        {
-            // This is a simplified check - the ChessBoard method is more accurate
-            var dx = Math.Abs(enemyPiece.Position.X - BoardPosition.X);
-            var dy = Math.Abs(enemyPiece.Position.Y - BoardPosition.Y);
-            
-            return enemyPiece.Type switch
-            {
-                PieceType.Pawn => IsPawnAttackingKing(enemyPiece),
-                PieceType.Rook => (dx == 0 || dy == 0) && IsPathClear(enemyPiece.Position, BoardPosition, board),
-                PieceType.Bishop => (dx == dy) && IsPathClear(enemyPiece.Position, BoardPosition, board),
-                PieceType.Queen => ((dx == 0 || dy == 0) || (dx == dy)) && IsPathClear(enemyPiece.Position, BoardPosition, board),
-                PieceType.Knight => (dx == 2 && dy == 1) || (dx == 1 && dy == 2),
-                PieceType.King => dx <= 1 && dy <= 1 && (dx + dy > 0),
-                _ => false
-            };
-        }
-
-        /// <summary>
-        /// Checks if a pawn is attacking the king
-        /// </summary>
-        private bool IsPawnAttackingKing(PieceInfo pawn)
-        {
-            int direction = pawn.Color == PieceColor.White ? 1 : -1;
-            var pawnPos = pawn.Position;
-            
-            // Pawn attacks diagonally forward
-            return (BoardPosition.X == pawnPos.X + direction) && 
-                   (Math.Abs(BoardPosition.Y - pawnPos.Y) == 1);
-        }
-
-        /// <summary>
-        /// Checks if the path between two positions is clear
-        /// </summary>
-        private bool IsPathClear(Vector2I from, Vector2I to, PieceInfo?[,] board)
-        {
-            var dx = Math.Sign(to.X - from.X);
-            var dy = Math.Sign(to.Y - from.Y);
-            var x = from.X + dx;
-            var y = from.Y + dy;
-            
-            while (x != to.X || y != to.Y)
-            {
-                if (board[x, y].HasValue)
-                    return false;
-                x += dx;
-                y += dy;
-            }
-            
             return true;
         }
     }
