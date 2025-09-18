@@ -144,7 +144,7 @@ namespace ChessAI.Core
 			_squareContainer?.AddChild(square);
 
 			// Add click detection
-			var area = new Area2D();
+			/*var area = new Area2D();
 			area.Name = $"ClickArea_{rank}_{file}";
 			square.AddChild(area);
 			
@@ -157,7 +157,7 @@ namespace ChessAI.Core
 			// Connect click signal
 			area.InputEvent += (Node viewport, InputEvent @event, long shapeIdx) => {
 				OnSquareClicked(@event, new Vector2I(rank, file));
-			};
+			};*/
 		}
 
 		/// <summary>
@@ -629,7 +629,7 @@ namespace ChessAI.Core
 		/// <summary>
 		/// Handles square click events
 		/// </summary>
-		private void OnSquareClicked(InputEvent @event, Vector2I position)
+		/*private void OnSquareClicked(InputEvent @event, Vector2I position)
 		{
 			if (@event is InputEventMouseButton mouseEvent && 
 				mouseEvent.ButtonIndex == MouseButton.Left && 
@@ -639,13 +639,13 @@ namespace ChessAI.Core
 				EmitSignal(SignalName.SquareClicked, position);
 				SelectSquare(position);
 			}
-		}
+		}*/
 
 		/// <summary>
 		/// Selects a square and updates visual highlighting
 		/// </summary>
 		/// <param name="position">Position to select</param>
-		public void SelectSquare(Vector2I position)
+		/*public void SelectSquare(Vector2I position)
 		{
 			if (!IsValidPosition(position.X, position.Y))
 				return;
@@ -657,7 +657,7 @@ namespace ChessAI.Core
 			HighlightSquare(position, Colors.Yellow);
 			
 			GD.Print($"Selected square: {BoardToAlgebraic(position.X, position.Y)}");
-		}
+		}*/
 
 		/// <summary>
 		/// Clears the current selection

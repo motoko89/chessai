@@ -81,7 +81,7 @@ namespace ChessAI.Tests
 			_chessBoard.SquareClicked += OnSquareClicked;
 			
 			// Test selecting a square programmatically
-			_chessBoard.SelectSquare(new Vector2I(1, 4)); // e2 (white pawn)
+		//	_chessBoard.SelectSquare(new Vector2I(1, 4)); // e2 (white pawn)
 			
 			var selected = _chessBoard.SelectedSquare;
 			if (selected.HasValue)
