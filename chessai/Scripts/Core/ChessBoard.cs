@@ -235,8 +235,8 @@ namespace ChessAI.Core
 			{
 				_pieceContainer = new Node2D();
 				_pieceContainer.Name = "PieceContainer";
-                _pieceContainer.ZIndex = 10;
-                AddChild(_pieceContainer);
+				_pieceContainer.ZIndex = 10;
+				AddChild(_pieceContainer);
 			}
 
 			// Clear existing pieces
@@ -255,13 +255,13 @@ namespace ChessAI.Core
 				{
 					var pieceInfo = _board[rank, file];
 					if (pieceInfo.HasValue)
-                    {
-                        GD.Print($"Creating piece node for {pieceInfo.Value} at ({rank}, {file})");
-                        var pieceNode = CreatePieceNode(pieceInfo.Value);
+					{
+						GD.Print($"Creating piece node for {pieceInfo.Value} at ({rank}, {file})");
+						var pieceNode = CreatePieceNode(pieceInfo.Value);
 						_pieceNodes[rank, file] = pieceNode;
 						_pieceContainer.AddChild(pieceNode);
-                        GD.Print($"Added piece {pieceNode} to scene tree");
-                    }
+						GD.Print($"Added piece {pieceNode} to scene tree");
+					}
 				}
 			}
 		}
@@ -948,10 +948,10 @@ namespace ChessAI.Core
 		/// Selects a piece and shows its valid moves
 		/// </summary>
 		private void SelectPiece(ChessPiece piece)
-        {
-            GD.Print("SelectPiece");
-            // Only allow selecting pieces of the current player
-            if (piece.Color != _currentPlayer)
+		{
+			GD.Print("SelectPiece");
+			// Only allow selecting pieces of the current player
+			if (piece.Color != _currentPlayer)
 			{
 				return;
 			}
