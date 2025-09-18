@@ -43,6 +43,10 @@ namespace ChessAI.Scripts.UI
             // Find UI elements
             _gameStatusLabel = GetNode<Label>("UI/GameUI/TopPanel/GameStatus");
             _resetButton = GetNode<Button>("UI/GameUI/BottomPanel/ResetButton");
+
+            // Add this after finding UI elements
+            var gameUI = GetNode<Control>("UI/GameUI");
+            gameUI.MouseFilter = Control.MouseFilterEnum.Ignore;
             
             // Connect UI signals
             if (_resetButton != null)
