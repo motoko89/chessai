@@ -243,28 +243,104 @@ namespace ChessAI.Core
 
         public override void _Input(InputEvent @event)
         {
-            if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed)
+            if (@event is InputEventMouseButton mouseEvent && 
+                mouseEvent.ButtonIndex == MouseButton.Left && 
+                mouseEvent.Pressed)
             {
-                GD.Print($"ChessBoard _Input: Mouse click detected at {mouseEvent.Position}");
-
-                // Check if click is within board bounds
                 var boardPos = ScreenToBoard(mouseEvent.Position);
                 if (boardPos.HasValue)
                 {
-                    GD.Print($"Click is within board at position {boardPos.Value}");
-                    var piece = GetPieceAt(boardPos.Value);
-                    if (piece.HasValue)
+                    HandleSquareClick(boardPos.Value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets valid moves for the currently selected piece
+        /// </summary>
+        /// <returns>List of valid moves for the selected piece, or empty list if no piece selected</returns>
+        private List<Vector2I> GetValidMovesForSelectedPiece()
+        {
+            if (_selectedPiece == null)
+                return new List<Vector2I>();
+            
+            List<Vector2I> validMoves;
+            if (_selectedPiece.Type == PieceType.Pawn && _selectedPiece is Pawn pawn)
+            {
+                validMoves = pawn.GetValidMoves(_board, _enPassantTarget);
+            }
+            else if (_selectedPiece.Type == PieceType.King && _selectedPiece is King king)
+            {
+                validMoves = king.GetValidMoves(_board, this);
+            }
+            else
+            {
+                validMoves = _selectedPiece.GetValidMoves(_board);
+            }
+            
+            // Filter out moves that would put own king in check
+            return validMoves.Where(move => 
+                !WouldMoveResultInCheck(_selectedPiece.BoardPosition, move, _selectedPiece.Color)).ToList();
+        }
+
+        /// <summary>
+        /// Handles clicks on board squares implementing the game's click logic
+        /// </summary>
+        /// <param name="position">The board position that was clicked</param>
+        private void HandleSquareClick(Vector2I position)
+        {
+            var pieceAtSquare = GetPieceAt(position);
+            
+            if (_selectedPiece == null)
+            {
+                // No piece currently selected
+                if (pieceAtSquare.HasValue && pieceAtSquare.Value.Color == PieceColor.White)
+                {
+                    // Clicking on white piece - select it
+                    var pieceNode = _pieceNodes[position.X, position.Y];
+                    if (pieceNode != null)
                     {
                         GD.Print($"Piece found at click position: {piece.Value}");
+                        SelectPiece(pieceNode);
                     }
-                    else
+                }
+                // Otherwise no-op (clicking empty square or enemy piece when nothing selected)
+            }
+            else
+            {
+                // A piece is currently selected
+                if (position == _selectedPiece.BoardPosition)
+                {
+                    // Clicking on the square of the selected piece - do nothing
+                    return;
+                }
+                
+                // Check if this is a valid move square
+                var validMoves = GetValidMovesForSelectedPiece();
+                if (validMoves.Contains(position))
+                {
+                    // Valid move - execute it
+                    if (TryExecuteMove(_selectedPiece.BoardPosition, position))
+                    {
+                        ClearSelection();
+                    }
+                }
+                else if (pieceAtSquare.HasValue && pieceAtSquare.Value.Color == PieceColor.White)
+                {
+                    // Clicking on another white piece - switch selection
+                    var pieceNode = _pieceNodes[position.X, position.Y];
+                    if (pieceNode != null)
                     {
                         GD.Print("No piece at click position");
+                        ClearSelection();
+                        SelectPiece(pieceNode);
                     }
                 }
                 else
                 {
                     GD.Print("Click is outside board area");
+                    // Clicking on empty square or enemy piece that's not a valid move - unselect
+                    ClearSelection();
                 }
             }
         }
@@ -673,39 +749,7 @@ namespace ChessAI.Core
         #endregion
 
         #region Input Handling
-        /// <summary>
-        /// Handles square click events
-        /// </summary>
-        /*private void OnSquareClicked(InputEvent @event, Vector2I position)
-        {
-            if (@event is InputEventMouseButton mouseEvent && 
-                mouseEvent.ButtonIndex == MouseButton.Left && 
-                mouseEvent.Pressed)
-            {
-                GD.Print($"Square clicked: {BoardToAlgebraic(position.X, position.Y)} ({position.X}, {position.Y})");
-                EmitSignal(SignalName.SquareClicked, position);
-                SelectSquare(position);
-            }
-        }*/
-
-        /// <summary>
-        /// Selects a square and updates visual highlighting
-        /// </summary>
-        /// <param name="position">Position to select</param>
-        /*public void SelectSquare(Vector2I position)
-        {
-            if (!IsValidPosition(position.X, position.Y))
-                return;
-
-            // Clear previous selection
-            ClearHighlights();
-
-            _selectedSquare = position;
-            HighlightSquare(position, Colors.Yellow);
-            
-            GD.Print($"Selected square: {BoardToAlgebraic(position.X, position.Y)}");
-        }*/
-
+ 
         /// <summary>
         /// Clears the current selection
         /// </summary>
@@ -962,30 +1006,8 @@ namespace ChessAI.Core
         {
             GD.Print($"Piece clicked: {piece}");
             
-            // If no piece is selected, select this piece
-            if (_selectedPiece == null)
-            {
-                SelectPiece(piece);
-            }
-            // If clicking the same piece, deselect
-            else if (_selectedPiece == piece)
-            {
-                ClearSelection();
-            }
-            // If clicking a different piece, try to move or select new piece
-            else
-            {
-                if (TryExecuteMove(_selectedPiece.BoardPosition, piece.BoardPosition))
-                {
-                    ClearSelection();
-                }
-                else
-                {
-                    // If move failed, select the new piece instead
-                    ClearSelection();
-                    SelectPiece(piece);
-                }
-            }
+            // Delegate to the square click handler for consistency
+            HandleSquareClick(piece.BoardPosition);
         }
 
         /// <summary>
@@ -993,10 +1015,12 @@ namespace ChessAI.Core
         /// </summary>
         private void SelectPiece(ChessPiece piece)
         {
-            GD.Print("SelectPiece");
-            // Only allow selecting pieces of the current player
-            if (piece.Color != _currentPlayer)
+            GD.Print($"SelectPiece: {piece}");
+            
+            // Only allow selecting white pieces (per requirements)
+            if (piece.Color != PieceColor.White)
             {
+                GD.Print("Cannot select non-white piece");
                 return;
             }
 
@@ -1007,26 +1031,8 @@ namespace ChessAI.Core
             piece.SetSelected(true);
             HighlightSquare(piece.BoardPosition, Colors.Yellow);
             
-            // Show valid moves
-            List<Vector2I> validMoves;
-            if (piece.Type == PieceType.Pawn && piece is Pawn pawn)
-            {
-                validMoves = pawn.GetValidMoves(_board, _enPassantTarget);
-            }
-            else if (piece.Type == PieceType.King && piece is King king)
-            {
-                validMoves = king.GetValidMoves(_board, this);
-            }
-            else
-            {
-                validMoves = piece.GetValidMoves(_board);
-            }
-            
-            // Filter out moves that would put own king in check
-            // (King already has this validation built-in, but we apply it to all pieces for consistency)
-            validMoves = validMoves.Where(move => 
-                !WouldMoveResultInCheck(piece.BoardPosition, move, piece.Color)).ToList();
-            
+            // Show valid moves using the helper method
+            var validMoves = GetValidMovesForSelectedPiece();
             HighlightSquares(validMoves, Colors.LightGreen);
             
             EmitSignal(SignalName.SquareClicked, piece.BoardPosition);
