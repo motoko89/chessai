@@ -300,7 +300,7 @@ namespace ChessAI.Core
                     var pieceNode = _pieceNodes[position.X, position.Y];
                     if (pieceNode != null)
                     {
-                        GD.Print($"Piece found at click position: {piece.Value}");
+                      //  GD.Print($"Piece found at click position: {pieceNode.Value}");
                         SelectPiece(pieceNode);
                     }
                 }
