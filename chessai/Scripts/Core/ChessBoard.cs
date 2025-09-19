@@ -250,7 +250,10 @@ namespace ChessAI.Core
                 var boardPos = ScreenToBoard(mouseEvent.Position);
                 if (boardPos.HasValue)
                 {
+                    GD.Print($"[_Input] ChessBoard handling click at {boardPos.Value} - consuming event");
                     HandleSquareClick(boardPos.Value);
+                    // Consume the event to prevent pieces from also handling it
+                    GetViewport().SetInputAsHandled();
                 }
             }
         }
@@ -1045,13 +1048,21 @@ namespace ChessAI.Core
         }
 
         /// <summary>
-        /// Handles piece click events
+        /// Handles piece click events from the PieceClicked signal
         /// </summary>
         private void OnPieceClicked(ChessPiece piece)
         {
-            GD.Print($"Piece clicked: {piece}");
+            GD.Print($"[OnPieceClicked] Piece clicked: {piece}");
+            
+            // Check if input was already handled by the ChessBoard's _Input method
+            if (GetViewport().IsInputHandled())
+            {
+                GD.Print($"[OnPieceClicked] Input already handled by ChessBoard - skipping");
+                return;
+            }
             
             // Delegate to the square click handler for consistency
+            GD.Print($"[OnPieceClicked] Delegating to HandleSquareClick for {piece.BoardPosition}");
             HandleSquareClick(piece.BoardPosition);
         }
 
