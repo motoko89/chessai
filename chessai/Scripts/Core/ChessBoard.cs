@@ -289,60 +289,99 @@ namespace ChessAI.Core
         /// <param name="position">The board position that was clicked</param>
         private void HandleSquareClick(Vector2I position)
         {
+            GD.Print($"[HandleSquareClick] Clicked position: {BoardToAlgebraic(position.X, position.Y)} ({position.X}, {position.Y})");
+            GD.Print($"[HandleSquareClick] Current selection: {(_selectedPiece != null ? _selectedPiece.ToString() : "None")}");
+            
             var pieceAtSquare = GetPieceAt(position);
+            GD.Print($"[HandleSquareClick] Piece at clicked square: {(pieceAtSquare.HasValue ? pieceAtSquare.Value.ToString() : "Empty")}");
             
             if (_selectedPiece == null)
             {
+                GD.Print("[HandleSquareClick] No piece currently selected");
                 // No piece currently selected
                 if (pieceAtSquare.HasValue && pieceAtSquare.Value.Color == PieceColor.White)
                 {
+                    GD.Print("[HandleSquareClick] Clicking on white piece - selecting it");
                     // Clicking on white piece - select it
                     var pieceNode = _pieceNodes[position.X, position.Y];
                     if (pieceNode != null)
                     {
-                      //  GD.Print($"Piece found at click position: {pieceNode.Value}");
+                        GD.Print($"[HandleSquareClick] Piece node found: {pieceNode}");
                         SelectPiece(pieceNode);
                     }
+                    else
+                    {
+                        GD.Print("[HandleSquareClick] ERROR: No piece node found at position");
+                    }
                 }
-                // Otherwise no-op (clicking empty square or enemy piece when nothing selected)
+                else
+                {
+                    GD.Print("[HandleSquareClick] No-op: clicking empty square or enemy piece when nothing selected");
+                }
             }
             else
             {
+                GD.Print("[HandleSquareClick] A piece is currently selected");
                 // A piece is currently selected
                 if (position == _selectedPiece.BoardPosition)
                 {
+                    GD.Print("[HandleSquareClick] Clicking on the square of the selected piece - doing nothing");
                     // Clicking on the square of the selected piece - do nothing
                     return;
                 }
                 
                 // Check if this is a valid move square
                 var validMoves = GetValidMovesForSelectedPiece();
+                GD.Print($"[HandleSquareClick] Valid moves for selected piece: {string.Join(", ", validMoves.Select(m => BoardToAlgebraic(m.X, m.Y)))}");
+                
                 if (validMoves.Contains(position))
                 {
+                    GD.Print("[HandleSquareClick] Valid move - executing it");
                     // Valid move - execute it
                     if (TryExecuteMove(_selectedPiece.BoardPosition, position))
                     {
-                        ClearSelection();
+                        GD.Print("[HandleSquareClick] Move executed successfully");
+                        // Note: ClearSelection is called within ExecuteMove, but we ensure it here as well for safety
+                        if (_selectedPiece != null)
+                        {
+                            GD.Print("[HandleSquareClick] Selection still exists after move, clearing it manually");
+                            ClearSelection();
+                        }
+                        else
+                        {
+                            GD.Print("[HandleSquareClick] Selection already cleared by move execution");
+                        }
+                    }
+                    else
+                    {
+                        GD.Print("[HandleSquareClick] Move execution failed");
                     }
                 }
                 else if (pieceAtSquare.HasValue && pieceAtSquare.Value.Color == PieceColor.White)
                 {
+                    GD.Print("[HandleSquareClick] Clicking on another white piece - switching selection");
                     // Clicking on another white piece - switch selection
                     var pieceNode = _pieceNodes[position.X, position.Y];
                     if (pieceNode != null)
                     {
-                        GD.Print("No piece at click position");
+                        GD.Print($"[HandleSquareClick] Switching to piece: {pieceNode}");
                         ClearSelection();
                         SelectPiece(pieceNode);
+                    }
+                    else
+                    {
+                        GD.Print("[HandleSquareClick] ERROR: No piece node found at white piece position");
                     }
                 }
                 else
                 {
-                    GD.Print("Click is outside board area");
+                    GD.Print("[HandleSquareClick] Clicking on empty square or enemy piece that's not a valid move - unselecting");
                     // Clicking on empty square or enemy piece that's not a valid move - unselect
                     ClearSelection();
                 }
             }
+            
+            GD.Print($"[HandleSquareClick] End - Current selection: {(_selectedPiece != null ? _selectedPiece.ToString() : "None")}");
         }
 
         /// <summary>
@@ -755,13 +794,18 @@ namespace ChessAI.Core
         /// </summary>
         public void ClearSelection()
         {
+            GD.Print($"[ClearSelection] Called - Current selection: {(_selectedPiece != null ? _selectedPiece.ToString() : "None")}");
+            
             if (_selectedPiece != null)
             {
                 _selectedPiece.SetSelected(false);
+                GD.Print($"[ClearSelection] Deselected piece: {_selectedPiece}");
                 _selectedPiece = null;
             }
             _selectedSquare = null;
             ClearHighlights();
+            
+            GD.Print("[ClearSelection] Selection cleared and highlights removed");
         }
         #endregion
 
@@ -940,13 +984,14 @@ namespace ChessAI.Core
                 _currentPlayer = _currentPlayer == PieceColor.White ? PieceColor.Black : PieceColor.White;
                 
                 // Clear selection and highlights
+                GD.Print($"[ExecuteMove] Clearing selection after successful move: {from} -> {to}");
                 ClearSelection();
                 
                 // Emit signals
                 EmitSignal(SignalName.MoveExecuted, from, to, piece.Value.ToNotation());
                 EmitSignal(SignalName.GameStateChanged, CurrentPlayer.ToString(), false); // TODO: Check detection
                 
-                GD.Print($"Move executed: {from} -> {to} ({piece.Value.ToNotation()})");
+                GD.Print($"[ExecuteMove] Move executed successfully: {from} -> {to} ({piece.Value.ToNotation()})");
                 return true;
             }
             catch (System.Exception ex)
@@ -1015,12 +1060,13 @@ namespace ChessAI.Core
         /// </summary>
         private void SelectPiece(ChessPiece piece)
         {
-            GD.Print($"SelectPiece: {piece}");
+            GD.Print($"[SelectPiece] Selecting piece: {piece}");
+            GD.Print($"[SelectPiece] Previous selection: {(_selectedPiece != null ? _selectedPiece.ToString() : "None")}");
             
             // Only allow selecting white pieces (per requirements)
             if (piece.Color != PieceColor.White)
             {
-                GD.Print("Cannot select non-white piece");
+                GD.Print("[SelectPiece] Cannot select non-white piece");
                 return;
             }
 
@@ -1033,9 +1079,11 @@ namespace ChessAI.Core
             
             // Show valid moves using the helper method
             var validMoves = GetValidMovesForSelectedPiece();
+            GD.Print($"[SelectPiece] Showing {validMoves.Count} valid moves");
             HighlightSquares(validMoves, Colors.LightGreen);
             
             EmitSignal(SignalName.SquareClicked, piece.BoardPosition);
+            GD.Print($"[SelectPiece] Piece selected successfully: {piece}");
         }
 
         /// <summary>
@@ -1046,9 +1094,17 @@ namespace ChessAI.Core
             var fromAlgebraic = BoardToAlgebraic(from.X, from.Y);
             var toAlgebraic = BoardToAlgebraic(to.X, to.Y);
             
+            GD.Print($"[TryExecuteMove] Attempting move: {fromAlgebraic} -> {toAlgebraic}");
+            GD.Print($"[TryExecuteMove] Current selection before move: {(_selectedPiece != null ? _selectedPiece.ToString() : "None")}");
+            
             // TODO: Add move validation here
             // For now, just execute any move
-            return ExecuteMove(fromAlgebraic, toAlgebraic);
+            bool result = ExecuteMove(fromAlgebraic, toAlgebraic);
+            
+            GD.Print($"[TryExecuteMove] Move result: {result}");
+            GD.Print($"[TryExecuteMove] Current selection after move: {(_selectedPiece != null ? _selectedPiece.ToString() : "None")}");
+            
+            return result;
         }
 
         /// <summary>
