@@ -3,6 +3,7 @@ using Flurl.Http;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using ChessAI.Models;
 
 namespace ChessAI.AI
 {
@@ -16,17 +17,57 @@ namespace ChessAI.AI
         
         public override void _Ready()
         {
-            // Get API key from environment variable or project settings
-            _apiKey = System.Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY") 
-                     ?? ProjectSettings.GetSetting("anthropic/api_key", "").AsString();
+            // Get API key from keys.json file
+            _apiKey = LoadApiKeyFromJson();
             
             if (string.IsNullOrEmpty(_apiKey))
             {
-                GD.PrintErr("Anthropic API key not found. Set ANTHROPIC_API_KEY environment variable or configure in Project Settings.");
+                GD.PrintErr("Anthropic API key not found. Please check keys.json file in the project root.");
             }
             else
             {
                 GD.Print("Anthropic API client initialized successfully.");
+            }
+        }
+
+        /// <summary>
+        /// Loads the Anthropic API key from keys.json file
+        /// </summary>
+        /// <returns>API key string or empty string if not found</returns>
+        private string LoadApiKeyFromJson()
+        {
+            try
+            {
+                var keysPath = "res://keys.json";
+                
+                if (!FileAccess.FileExists(keysPath))
+                {
+                    GD.PrintErr($"Keys file not found at {keysPath}");
+                    return string.Empty;
+                }
+
+                using var file = FileAccess.Open(keysPath, FileAccess.ModeFlags.Read);
+                if (file == null)
+                {
+                    GD.PrintErr($"Failed to open keys file at {keysPath}");
+                    return string.Empty;
+                }
+
+                var jsonContent = file.GetAsText();
+                var keysModel = JsonConvert.DeserializeObject<KeysModel>(jsonContent);
+                
+                if (keysModel == null)
+                {
+                    GD.PrintErr("Failed to parse keys.json file");
+                    return string.Empty;
+                }
+
+                return keysModel.Anthropics;
+            }
+            catch (System.Exception ex)
+            {
+                GD.PrintErr($"Error loading API key from keys.json: {ex.Message}");
+                return string.Empty;
             }
         }
 

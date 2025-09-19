@@ -165,7 +165,7 @@ namespace ChessAI.AI
             {
                 ["initialized"] = _isInitialized,
                 ["anthropic_client_ready"] = _anthropicClient != null,
-                ["has_api_key"] = !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY")),
+                ["keys_file_exists"] = FileAccess.FileExists("res://keys.json"),
                 ["instance_ready"] = _instance != null
             };
         }
