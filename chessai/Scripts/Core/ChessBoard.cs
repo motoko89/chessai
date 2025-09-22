@@ -1,4 +1,5 @@
 using ChessAI.Pieces;
+using ChessAI.AI;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,10 @@ namespace ChessAI.Core
         private List<string> _moveHistory = new();
         private CastleRights _castleRights = CastleRights.Initial;
         private string? _enPassantTarget = null;
+        
+        // AI Service reference
+        private AIService? _aiService;
+        private bool _isWaitingForAI = false;
         
         // Visual components
         private ColorRect[,] _squares = new ColorRect[BOARD_SIZE, BOARD_SIZE];
@@ -98,6 +103,9 @@ namespace ChessAI.Core
         {
             CreateVisualBoard();
             CreatePieceNodes();
+            
+            // Initialize AI Service connection
+            InitializeAIService();
 
             // Debug: Print scene tree structure
             GD.Print("=== Scene Tree Structure ===");
@@ -112,6 +120,27 @@ namespace ChessAI.Core
             foreach (Node child in node.GetChildren())
             {
                 PrintSceneTree(child, depth + 1);
+            }
+        }
+
+        /// <summary>
+        /// Initializes the connection to the AI Service
+        /// </summary>
+        private void InitializeAIService()
+        {
+            // Get the AIService singleton instance
+            _aiService = AIService.Instance;
+            
+            if (_aiService != null)
+            {
+                // Connect to AI signals
+                _aiService.AIMoveReceived += OnAIMoveReceived;
+                _aiService.AIError += OnAIError;
+                GD.Print("ChessBoard connected to AIService");
+            }
+            else
+            {
+                GD.PrintErr("AIService instance not found - AI moves will not work");
             }
         }
         #endregion
@@ -994,6 +1023,13 @@ namespace ChessAI.Core
                 EmitSignal(SignalName.MoveExecuted, from, to, piece.Value.ToNotation());
                 EmitSignal(SignalName.GameStateChanged, CurrentPlayer.ToString(), false); // TODO: Check detection
                 
+                // Check if it's now Black's turn and trigger AI move
+                if (_currentPlayer == PieceColor.Black && !_isWaitingForAI)
+                {
+                    GD.Print("White move completed - requesting AI move for Black");
+                    RequestAIMove();
+                }
+                
                 GD.Print($"[ExecuteMove] Move executed successfully: {from} -> {to} ({piece.Value.ToNotation()})");
                 return true;
             }
@@ -1073,6 +1109,20 @@ namespace ChessAI.Core
         {
             GD.Print($"[SelectPiece] Selecting piece: {piece}");
             GD.Print($"[SelectPiece] Previous selection: {(_selectedPiece != null ? _selectedPiece.ToString() : "None")}");
+            
+            // Block selection if waiting for AI
+            if (_isWaitingForAI)
+            {
+                GD.Print("[SelectPiece] Cannot select piece while waiting for AI move");
+                return;
+            }
+            
+            // Block selection if it's not White's turn
+            if (_currentPlayer != PieceColor.White)
+            {
+                GD.Print("[SelectPiece] Cannot select piece - it's not White's turn");
+                return;
+            }
             
             // Only allow selecting white pieces (per requirements)
             if (piece.Color != PieceColor.White)
@@ -1178,6 +1228,194 @@ namespace ChessAI.Core
             GD.Print($"To move: {CurrentPlayer}");
             GD.Print($"Move history: [{string.Join(", ", _moveHistory)}]");
         }
+
+        #region AI Integration
+
+        /// <summary>
+        /// Handles AI move responses
+        /// </summary>
+        private void OnAIMoveReceived(string move)
+        {
+            GD.Print($"[OnAIMoveReceived] AI suggested move: {move}");
+            
+            if (!_isWaitingForAI)
+            {
+                GD.PrintErr("Received AI move when not waiting for AI");
+                return;
+            }
+
+            _isWaitingForAI = false;
+            
+            // Parse and execute the AI move
+            ProcessAIMove(move);
+        }
+
+        /// <summary>
+        /// Handles AI errors
+        /// </summary>
+        private void OnAIError(string error)
+        {
+            GD.PrintErr($"[OnAIError] AI error: {error}");
+            _isWaitingForAI = false;
+            
+            // For now, just log the error. Could implement retry logic or fallback moves
+            GD.Print("AI failed to make a move - waiting for user input");
+        }
+
+        /// <summary>
+        /// Requests an AI move for Black
+        /// </summary>
+        private async void RequestAIMove()
+        {
+            if (_isWaitingForAI)
+            {
+                GD.Print("Already waiting for AI move");
+                return;
+            }
+
+            if (_aiService == null || !_aiService.IsReady())
+            {
+                GD.PrintErr("AI Service not ready");
+                return;
+            }
+
+            if (_currentPlayer != PieceColor.Black)
+            {
+                GD.PrintErr("Requested AI move but it's not Black's turn");
+                return;
+            }
+
+            _isWaitingForAI = true;
+            GD.Print("Requesting AI move for Black...");
+            
+            try
+            {
+                var aiMove = await _aiService.GetBestMoveAsync(
+                    _board, 
+                    _moveHistory, 
+                    _castleRights, 
+                    _enPassantTarget
+                );
+                
+                // The response will be handled by OnAIMoveReceived signal
+            }
+            catch (System.Exception ex)
+            {
+                GD.PrintErr($"Error requesting AI move: {ex.Message}");
+                _isWaitingForAI = false;
+            }
+        }
+
+        /// <summary>
+        /// Processes and executes an AI move
+        /// </summary>
+        private void ProcessAIMove(string aiMove)
+        {
+            if (string.IsNullOrEmpty(aiMove))
+            {
+                GD.PrintErr("AI returned empty move - game may be over");
+                HandleGameEnd("AI has no valid moves");
+                return;
+            }
+
+            // Parse the AI move notation (could be various formats)
+            var moveCoordinates = ParseAIMove(aiMove);
+            
+            if (moveCoordinates == null)
+            {
+                GD.PrintErr($"Failed to parse AI move: {aiMove}");
+                return;
+            }
+
+            var (from, to) = moveCoordinates.Value;
+            
+            // Validate that this is a legal move
+            if (!IsValidAIMove(from, to))
+            {
+                GD.PrintErr($"AI suggested invalid move: {aiMove} ({from} -> {to})");
+                return;
+            }
+
+            // Execute the move
+            var fromAlgebraic = BoardToAlgebraic(from.X, from.Y);
+            var toAlgebraic = BoardToAlgebraic(to.X, to.Y);
+            
+            GD.Print($"Executing AI move: {fromAlgebraic} -> {toAlgebraic}");
+            
+            if (ExecuteMove(fromAlgebraic, toAlgebraic))
+            {
+                GD.Print("AI move executed successfully");
+            }
+            else
+            {
+                GD.PrintErr("Failed to execute AI move");
+            }
+        }
+
+        /// <summary>
+        /// Parses AI move notation to board coordinates
+        /// </summary>
+        private (Vector2I from, Vector2I to)? ParseAIMove(string move)
+        {
+            // Handle common chess move notations
+            move = move.Trim();
+            
+            // Try to parse coordinate moves like "e7e5" or "e7-e5"
+            var cleanMove = move.Replace("-", "").Replace(" ", "");
+            
+            if (cleanMove.Length >= 4)
+            {
+                try
+                {
+                    var fromStr = cleanMove.Substring(0, 2);
+                    var toStr = cleanMove.Substring(2, 2);
+                    
+                    var from = AlgebraicToBoard(fromStr);
+                    var to = AlgebraicToBoard(toStr);
+                    
+                    return (from, to);
+                }
+                catch (System.Exception)
+                {
+                    // Try other parsing methods if needed
+                }
+            }
+            
+            // TODO: Add support for standard algebraic notation (Nf3, Bxc4, etc.)
+            // For now, return null if we can't parse
+            GD.PrintErr($"Unable to parse move format: {move}");
+            return null;
+        }
+
+        /// <summary>
+        /// Validates that an AI move is legal
+        /// </summary>
+        private bool IsValidAIMove(Vector2I from, Vector2I to)
+        {
+            // Basic bounds checking
+            if (!IsValidPosition(from.X, from.Y) || !IsValidPosition(to.X, to.Y))
+                return false;
+            
+            // Check that there's a Black piece at the source
+            var piece = GetPieceAt(from);
+            if (!piece.HasValue || piece.Value.Color != PieceColor.Black)
+                return false;
+            
+            // TODO: Add more comprehensive move validation
+            // For now, we'll rely on the AI to suggest valid moves
+            return true;
+        }
+
+        /// <summary>
+        /// Handles game end conditions
+        /// </summary>
+        private void HandleGameEnd(string reason)
+        {
+            GD.Print($"Game ended: {reason}");
+            // TODO: Implement proper game end handling (UI updates, etc.)
+        }
+
+        #endregion
         #endregion
     }
 }
