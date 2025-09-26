@@ -990,6 +990,14 @@ namespace ChessAI.Core
                     }
                 }
                 
+                // Handle regular captures (remove captured piece at destination)
+                var capturedPieceAtDestination = _pieceNodes[toPos.X, toPos.Y];
+                if (capturedPieceAtDestination != null)
+                {
+                    capturedPieceAtDestination.QueueFree();
+                    _pieceNodes[toPos.X, toPos.Y] = null;
+                }
+
                 // Handle en passant capture (remove the captured pawn)
                 if (isEnPassantCapture && enPassantCapturePos.HasValue)
                 {
@@ -1002,7 +1010,7 @@ namespace ChessAI.Core
                         _pieceNodes[enPassantCapturePos.Value.X, enPassantCapturePos.Value.Y] = null;
                     }
                 }
-                
+
                 // Update visual pieces
                 MovePieceNode(fromPos, toPos);
                 
