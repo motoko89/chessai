@@ -849,7 +849,7 @@ namespace ChessAI.Core
         /// <param name="color">Highlight color</param>
         public void HighlightSquare(Vector2I position, Color color)
         {
-            GD.Print("HighlightSquare");
+           // GD.Print("HighlightSquare");
             if (!IsValidPosition(position.X, position.Y))
                 return;
 
