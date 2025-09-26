@@ -1359,20 +1359,20 @@ namespace ChessAI.Core
         {
             // Handle common chess move notations
             move = move.Trim();
-            
+
             // Try to parse coordinate moves like "e7e5" or "e7-e5"
             var cleanMove = move.Replace("-", "").Replace(" ", "");
-            
+
             if (cleanMove.Length >= 4)
             {
                 try
                 {
                     var fromStr = cleanMove.Substring(0, 2);
                     var toStr = cleanMove.Substring(2, 2);
-                    
+
                     var from = AlgebraicToBoard(fromStr);
                     var to = AlgebraicToBoard(toStr);
-                    
+
                     return (from, to);
                 }
                 catch (System.Exception)
@@ -1380,10 +1380,105 @@ namespace ChessAI.Core
                     // Try other parsing methods if needed
                 }
             }
-            
-            // TODO: Add support for standard algebraic notation (Nf3, Bxc4, etc.)
+
+            // Handle standard algebraic notation (e.g., "e5", "Nf3", "Bxc4")
+            if (cleanMove.Length == 2)
+            {
+                // Simple pawn move like "e5"
+                try
+                {
+                    var to = AlgebraicToBoard(cleanMove);
+
+                    // Find the piece that can move to this square
+                    var from = FindPieceCanMoveTo(to, _currentPlayer);
+                    if (from != null)
+                    {
+                        return (from.Value, to);
+                    }
+                }
+                catch (System.Exception)
+                {
+                    // Continue to other parsing methods
+                }
+            }
+            else if (cleanMove.Length == 3 && char.IsUpper(cleanMove[0]))
+            {
+                // Piece move like "Nf3", "Bd2"
+                try
+                {
+                    var pieceType = cleanMove[0];
+                    var toSquare = cleanMove.Substring(1);
+                    var to = AlgebraicToBoard(toSquare);
+
+                    // Find the piece of this type that can move to this square
+                    var from = FindPieceCanMoveTo(to, _currentPlayer, pieceType);
+                    if (from != null)
+                    {
+                        return (from.Value, to);
+                    }
+                }
+                catch (System.Exception)
+                {
+                    // Continue to other parsing methods
+                }
+            }
+
+            // TODO: Add support for captures (Bxc4), castling (O-O), etc.
             // For now, return null if we can't parse
             GD.PrintErr($"Unable to parse move format: {move}");
+            return null;
+        }
+
+        /// <summary>
+        /// Finds a piece that can move to the target square
+        /// </summary>
+        /// <param name="to">Target square</param>
+        /// <param name="color">Color of piece to find</param>
+        /// <param name="pieceType">Optional piece type (for moves like "Nf3")</param>
+        /// <returns>Source square if found, null otherwise</returns>
+        private Vector2I? FindPieceCanMoveTo(Vector2I to, PieceColor color, char? pieceType = null)
+        {
+            // Iterate through all squares to find pieces of the right color
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    var piece = _board[x, y];
+                    if (piece == null || piece.Color != color)
+                        continue;
+
+                    // If pieceType is specified, check if this piece matches
+                    if (pieceType.HasValue)
+                    {
+                        var expectedType = pieceType.Value switch
+                        {
+                            'N' => typeof(Knight),
+                            'B' => typeof(Bishop),
+                            'R' => typeof(Rook),
+                            'Q' => typeof(Queen),
+                            'K' => typeof(King),
+                            _ => typeof(Pawn) // Default to pawn for unrecognized types
+                        };
+
+                        if (piece.GetType() != expectedType)
+                            continue;
+                    }
+                    else
+                    {
+                        // If no piece type specified, assume pawn move
+                        if (!(piece is Pawn))
+                            continue;
+                    }
+
+                    // Check if this piece can legally move to the target square
+                    var validMoves = piece.GetValidMoves(_board, new Vector2I(x, y));
+                    if (validMoves.Contains(to))
+                    {
+                        return new Vector2I(x, y);
+                    }
+                }
+            }
+
             return null;
         }
 
