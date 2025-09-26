@@ -1443,8 +1443,8 @@ namespace ChessAI.Core
             {
                 for (int y = 0; y < 8; y++)
                 {
-                    var piece = _board[x, y];
-                    if (piece == null || piece.Color != color)
+                    var pieceInfo = _board[x, y];
+                    if (pieceInfo == null || pieceInfo.Value.Color != color)
                         continue;
 
                     // If pieceType is specified, check if this piece matches
@@ -1452,26 +1452,42 @@ namespace ChessAI.Core
                     {
                         var expectedType = pieceType.Value switch
                         {
-                            'N' => typeof(Knight),
-                            'B' => typeof(Bishop),
-                            'R' => typeof(Rook),
-                            'Q' => typeof(Queen),
-                            'K' => typeof(King),
-                            _ => typeof(Pawn) // Default to pawn for unrecognized types
+                            'N' => PieceType.Knight,
+                            'B' => PieceType.Bishop,
+                            'R' => PieceType.Rook,
+                            'Q' => PieceType.Queen,
+                            'K' => PieceType.King,
+                            _ => PieceType.Pawn // Default to pawn for unrecognized types
                         };
 
-                        if (piece.GetType() != expectedType)
+                        if (pieceInfo.Value.Type != expectedType)
                             continue;
                     }
                     else
                     {
                         // If no piece type specified, assume pawn move
-                        if (!(piece is Pawn))
+                        if (pieceInfo.Value.Type != PieceType.Pawn)
                             continue;
                     }
 
+                    // Create a temporary ChessPiece object to get valid moves
+                    var tempPiece = CreatePieceNode(pieceInfo.Value);
+
                     // Check if this piece can legally move to the target square
-                    var validMoves = piece.GetValidMoves(_board, new Vector2I(x, y));
+                    List<Vector2I> validMoves;
+                    if (pieceInfo.Value.Type == PieceType.Pawn && tempPiece is Pawn pawn)
+                    {
+                        validMoves = pawn.GetValidMoves(_board, _enPassantTarget);
+                    }
+                    else if (pieceInfo.Value.Type == PieceType.King && tempPiece is King king)
+                    {
+                        validMoves = king.GetValidMoves(_board, this);
+                    }
+                    else
+                    {
+                        validMoves = tempPiece.GetValidMoves(_board);
+                    }
+
                     if (validMoves.Contains(to))
                     {
                         return new Vector2I(x, y);
