@@ -120,7 +120,7 @@ namespace ChessAI.Pieces
         #region Interaction
         private void OnInputEvent(Node viewport, InputEvent @event, long shapeIdx)
         {
-            GD.Print($"OnInputEvent called for {this} - Event type: {@event.GetType().Name}");
+            //GD.Print($"OnInputEvent called for {this} - Event type: {@event.GetType().Name}");
 
             if (@event is InputEventMouseButton mouseEvent)
             {
